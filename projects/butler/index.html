@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Butler Finance — Planning &amp; Research</title>
+<meta name="description" content="Pre-college research and planning for the Butler University Lacy School of Business Finance major: curriculum, faculty, experiential programs, and an interactive 4-year planner." />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial; }
+  .hero-bg {
+    background: linear-gradient(135deg, #0c2a5b 0%, #1e3a8a 50%, #1d4ed8 100%);
+  }
+  .stat-card { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.15); }
+  .section-title { letter-spacing: -0.02em; }
+  .anchor-link::before { content: "#"; opacity: 0; padding-right: 0.25rem; color: #94a3b8; }
+  .anchor-link:hover::before { opacity: 1; }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] .toggle-arrow { transform: rotate(90deg); }
+  .toggle-arrow { transition: transform 0.15s ease; display: inline-block; }
+  .priority-tag { font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; }
+  .pri-must { background: #fee2e2; color: #991b1b; }
+  .pri-high { background: #ffedd5; color: #9a3412; }
+  .pri-med  { background: #fef3c7; color: #854d0e; }
+  .pri-low  { background: #e0e7ff; color: #3730a3; }
+  /* nav fade-in for sticky shrink */
+  nav.shrink { backdrop-filter: blur(12px); background: rgba(255,255,255,0.92); }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+<!-- ============================ NAV ============================ -->
+<nav id="topnav" class="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur shrink">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <a href="#top" class="font-bold text-slate-900 text-sm sm:text-base">Butler Finance · Planning</a>
+    <div class="hidden md:flex items-center gap-5 text-sm text-slate-600">
+      <a class="hover:text-blue-700" href="#program">Program</a>
+      <a class="hover:text-blue-700" href="#strategy">Strategy</a>
+      <a class="hover:text-blue-700" href="#faculty">Faculty</a>
+      <a class="hover:text-blue-700" href="#experiential">Experiential</a>
+      <a class="hover:text-blue-700" href="#questions">Open Questions</a>
+    </div>
+    <a href="planner.html" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-700 text-white text-sm font-semibold hover:bg-blue-800">
+      Open Planner →
+    </a>
+  </div>
+</nav>
+
+<!-- ============================ HERO ============================ -->
+<header id="top" class="hero-bg text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+    <p class="text-xs font-semibold tracking-widest uppercase text-blue-200 mb-3">Pre-college research &amp; planning</p>
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-4 max-w-3xl section-title">
+      Planning four years at the Lacy School of Business
+    </h1>
+    <p class="text-lg sm:text-xl text-blue-100 max-w-2xl mb-8">
+      A working knowledge base for the Butler University Finance major — built to answer
+      the questions every student should ask before they register: <em>which classes,
+      which professors, and which experiential programs actually move the needle?</em>
+    </p>
+    <div class="flex flex-wrap gap-3 mb-12">
+      <a href="planner.html" class="px-5 py-3 rounded-lg bg-white text-blue-900 font-semibold hover:bg-blue-50 shadow">
+        Open the planner →
+      </a>
+      <a href="#program" class="px-5 py-3 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 border border-white/30">
+        Read the research
+      </a>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-4xl">
+      <div class="stat-card rounded-xl p-4">
+        <div class="text-3xl sm:text-4xl font-bold">122</div>
+        <div class="text-xs text-blue-200 mt-1">Total credit hours</div>
+      </div>
+      <div class="stat-card rounded-xl p-4">
+        <div class="text-3xl sm:text-4xl font-bold">3 yrs</div>
+        <div class="text-xs text-blue-200 mt-1">Major completable in</div>
+      </div>
+      <div class="stat-card rounded-xl p-4">
+        <div class="text-3xl sm:text-4xl font-bold">100%</div>
+        <div class="text-xs text-blue-200 mt-1">Lacy class with ≥1 internship</div>
+      </div>
+      <div class="stat-card rounded-xl p-4">
+        <div class="text-3xl sm:text-4xl font-bold">$3M</div>
+        <div class="text-xs text-blue-200 mt-1">Student-managed fund (SMIF)</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ PROGRAM ============================ -->
+<section id="program" class="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-1">
+      <p class="text-xs font-semibold tracking-widest uppercase text-blue-700 mb-2">The program</p>
+      <h2 class="text-3xl font-bold mb-4 section-title">A structured Finance major with serious experiential muscle</h2>
+      <p class="text-slate-600">
+        Butler's Finance major is more pre-defined than most. The Lacy School's Business Core
+        is shared by every business major — about 80% of coursework — which means the real
+        strategic decisions happen elsewhere.
+      </p>
+    </div>
+    <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white rounded-xl border p-5">
+        <div class="text-sm font-bold text-blue-900 mb-1">Business Core</div>
+        <div class="text-xs uppercase text-slate-500 mb-3">22 courses · ~80% of major</div>
+        <p class="text-sm text-slate-700">Required of all Lacy majors. Includes FN 340 Corporate Finance, MS 365 Business Analytics, accounting, micro/macro, statistics, ethics, law. The leverage here is choosing the best professor for each.</p>
+      </div>
+      <div class="bg-white rounded-xl border p-5">
+        <div class="text-sm font-bold text-blue-900 mb-1">Finance-specific</div>
+        <div class="text-xs uppercase text-slate-500 mb-3">2 required + 9 elective hrs</div>
+        <p class="text-sm text-slate-700">FN 347 Investments and FN 451 International Financial Management are the two required Finance courses. Nine credit hours of FN electives are chosen — this is where specialization happens.</p>
+      </div>
+      <div class="bg-white rounded-xl border p-5">
+        <div class="text-sm font-bold text-blue-900 mb-1">Experiential</div>
+        <div class="text-xs uppercase text-slate-500 mb-3">Where placement comes from</div>
+        <p class="text-sm text-slate-700">Two required internships, plus opportunities to compete for SMIF, BBCG, the captive insurance company, the CFA Research Challenge, and FMA leadership. These matter more than any single class.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Curriculum collapsible -->
+  <div class="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <details class="bg-white rounded-xl border p-5" open>
+      <summary class="flex items-center justify-between">
+        <span class="font-semibold text-slate-900">Business Core (sample)</span>
+        <span class="toggle-arrow text-blue-700">▶</span>
+      </summary>
+      <ul class="mt-4 text-sm text-slate-700 space-y-1.5">
+        <li><b>FN 340</b> Corporate Finance <span class="muted text-slate-400">· 3 cr</span></li>
+        <li><b>MS 365</b> Business Analytics <span class="muted text-slate-400">· 3 cr</span></li>
+        <li><b>AC 203 / 204</b> Accounting I &amp; II <span class="muted text-slate-400">· 6 cr</span></li>
+        <li><b>EC 231 / 232</b> Micro &amp; Macro <span class="muted text-slate-400">· 6 cr</span></li>
+        <li><b>MS 264</b> Statistics <span class="muted text-slate-400">· 3 cr</span></li>
+        <li><b>EI 201</b> Real Business Experience <span class="muted text-slate-400">· 3 cr</span></li>
+        <li><b>MG 490</b> Strategy Capstone <span class="muted text-slate-400">· 3 cr</span></li>
+        <li class="text-slate-400">…and 15 others. <a href="planner.html" class="text-blue-700 hover:underline">See full list in planner →</a></li>
+      </ul>
+    </details>
+    <details class="bg-white rounded-xl border p-5">
+      <summary class="flex items-center justify-between">
+        <span class="font-semibold text-slate-900">Finance Required &amp; Electives</span>
+        <span class="toggle-arrow text-blue-700">▶</span>
+      </summary>
+      <ul class="mt-4 text-sm text-slate-700 space-y-1.5">
+        <li><b>FN 347</b> Investments — Dolvin <span class="priority-tag pri-must ml-1">P5</span></li>
+        <li><b>FN 451</b> International Financial Management — Foltice / Stephen <span class="priority-tag pri-high ml-1">P4</span></li>
+        <li class="text-slate-500 mt-2 mb-1 text-xs uppercase tracking-wide">9 elective hours from:</li>
+        <li><b>FN 357</b> Behavioral Finance — Foltice</li>
+        <li><b>FN 371</b> Financial Institutions, Instruments &amp; Markets</li>
+        <li><b>FN 450</b> Derivatives Securities &amp; Risk Management</li>
+        <li><b>FN 352</b> Real Estate Principles</li>
+        <li><b>SMIF</b> Student-Managed Investment Fund — Dolvin</li>
+        <li class="text-slate-400">Topics rotate. Verify current catalog.</li>
+      </ul>
+    </details>
+    <details class="bg-white rounded-xl border p-5">
+      <summary class="flex items-center justify-between">
+        <span class="font-semibold text-slate-900">University Core (Gen-Eds)</span>
+        <span class="toggle-arrow text-blue-700">▶</span>
+      </summary>
+      <ul class="mt-4 text-sm text-slate-700 space-y-1.5">
+        <li>FYS 101/102 First-Year Seminar (or HN 110/111 if Honors)</li>
+        <li>GHS Global &amp; Historical Studies (×2)</li>
+        <li>PCA Perspective in Creative Arts</li>
+        <li>NW Natural World (with lab)</li>
+        <li>TI Texts &amp; Ideas</li>
+        <li>PWB Physical Well Being</li>
+        <li>+ 18 hrs of free / LAS electives (room for a minor)</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<!-- ============================ STRATEGY ============================ -->
+<section id="strategy" class="bg-slate-100 py-16 border-y border-slate-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <p class="text-xs font-semibold tracking-widest uppercase text-blue-700 mb-2">How to prioritize</p>
+    <h2 class="text-3xl font-bold mb-2 section-title">Five tiers, in priority order</h2>
+    <p class="text-slate-600 max-w-2xl mb-10">Not every class deserves the same attention. Here's the working framework for picking professors, choosing electives, and deciding when a B+ is worth a top-tier teacher.</p>
+
+    <ol class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <li class="bg-white rounded-xl border-2 border-red-200 p-5">
+        <div class="priority-tag pri-must mb-3 inline-block">Tier 1 · Must</div>
+        <h3 class="font-bold mb-2">Top professor for core finance</h3>
+        <p class="text-sm text-slate-700">FN 340 (Corporate Finance) and FN 347 (Investments) are foundational. Take them with the best-reviewed professor available, even if it means waiting a semester.</p>
+      </li>
+      <li class="bg-white rounded-xl border-2 border-orange-200 p-5">
+        <div class="priority-tag pri-high mb-3 inline-block">Tier 2 · High</div>
+        <h3 class="font-bold mb-2">Experiential programs aggressively</h3>
+        <p class="text-sm text-slate-700">SMIF, BBCG, CFA Research Challenge, FMA leadership. These are the resume-differentiators and the source of mentor relationships.</p>
+      </li>
+      <li class="bg-white rounded-xl border-2 border-yellow-200 p-5">
+        <div class="priority-tag pri-med mb-3 inline-block">Tier 3 · Targeted</div>
+        <h3 class="font-bold mb-2">Specialize via electives</h3>
+        <p class="text-sm text-slate-700">After sophomore year, pick FN electives that align with the emerging career direction (IB → Derivatives + Financial Institutions; AM → SMIF + Derivatives; etc.).</p>
+      </li>
+      <li class="bg-white rounded-xl border-2 border-indigo-200 p-5">
+        <div class="priority-tag pri-low mb-3 inline-block">Tier 4 · GPA</div>
+        <h3 class="font-bold mb-2">Optimize gen-eds for fit</h3>
+        <p class="text-sm text-slate-700">University-core requirements don't matter for finance placement. Take with highly-rated professors in subjects he genuinely enjoys. Protect the Honors 3.5 floor here.</p>
+      </li>
+      <li class="bg-white rounded-xl border-2 border-slate-200 p-5">
+        <div class="priority-tag pri-low mb-3 inline-block">Tier 5 · Defend</div>
+        <h3 class="font-bold mb-2">Avoid bad professors</h3>
+        <p class="text-sm text-slate-700">The cost of a bad professor in a major class compounds: weaker learning, weaker rec letters, less engaged with the subject. RMP + Coursicle + Reddit at every registration.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================ FACULTY ============================ -->
+<section id="faculty" class="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+  <p class="text-xs font-semibold tracking-widest uppercase text-blue-700 mb-2">Who matters</p>
+  <h2 class="text-3xl font-bold mb-2 section-title">Faculty worth planning around</h2>
+  <p class="text-slate-600 max-w-2xl mb-10">Seven people drive most of the Finance experience. These four come up most often in student reviews and program leadership.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <article class="bg-white rounded-xl border p-6 flex flex-col">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h3 class="text-lg font-bold">Dr. Steven Dolvin, CFA</h3>
+          <p class="text-sm text-slate-600">Professor of Finance · Ratliff Endowed Chair</p>
+        </div>
+        <span class="priority-tag pri-must">Priority 5</span>
+      </div>
+      <p class="text-sm text-slate-700 mb-3"><b>Teaches:</b> FN 347 Investments · Student-Managed Investment Fund</p>
+      <p class="text-sm text-slate-700 mb-3">Co-author of <em>Fundamentals of Investments</em> (McGraw-Hill, the textbook used in his class). Whiteboard-based lectures, generous extra credit, and lecture videos posted online. Students consistently say they learn more in his class than any other at Butler.</p>
+      <p class="text-xs text-slate-500 italic mt-auto">Plan the schedule around him for Investments and SMIF.</p>
+    </article>
+
+    <article class="bg-white rounded-xl border p-6 flex flex-col">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h3 class="text-lg font-bold">Dr. Thomas Hanson</h3>
+          <p class="text-sm text-slate-600">Associate Professor of Finance</p>
+        </div>
+        <span class="priority-tag pri-must">Priority 5</span>
+      </div>
+      <p class="text-sm text-slate-700 mb-3"><b>Teaches:</b> FN 340 Corporate Finance · Investments · Valuation</p>
+      <p class="text-sm text-slate-700 mb-3">RMP 4.0/5, <b>100% would take again</b>. Reviewers cite great analogies, hard-but-fair homework, and genuine care for students. Faculty advisor to the Financial Management Association (a "Superior Chapter" nationally). Strong fit for quant-curious students.</p>
+      <p class="text-xs text-slate-500 italic mt-auto">Best target for FN 340 and an obvious mentor candidate.</p>
+    </article>
+
+    <article class="bg-white rounded-xl border p-6 flex flex-col">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h3 class="text-lg font-bold">Dr. Bryan Foltice</h3>
+          <p class="text-sm text-slate-600">Associate Professor of Finance</p>
+        </div>
+        <span class="priority-tag pri-high">Priority 4</span>
+      </div>
+      <p class="text-sm text-slate-700 mb-3"><b>Teaches:</b> FN 451 International Financial Management · FN 357 Behavioral Finance · Investments</p>
+      <p class="text-sm text-slate-700 mb-3">RMP 4.7/5, 80% retake rate. Ph.D. from University of Muenster, magna cum laude. Former Fidelity and Deutsche Bank; former pro basketball player in Germany. Reviewers describe his classes as practical and approachable without sacrificing depth.</p>
+      <p class="text-xs text-slate-500 italic mt-auto">Top pick for FN 451 and Behavioral Finance.</p>
+    </article>
+
+    <article class="bg-white rounded-xl border p-6 flex flex-col">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h3 class="text-lg font-bold">Dr. Matthew Lanham</h3>
+          <p class="text-sm text-slate-600">Assistant Professor, Business Tech &amp; Analytics</p>
+        </div>
+        <span class="priority-tag pri-must">Priority 5</span>
+      </div>
+      <p class="text-sm text-slate-700 mb-3"><b>Teaches:</b> MS 365 Business Analytics</p>
+      <p class="text-sm text-slate-700 mb-3"><b>Poets&amp;Quants Top 50 Undergraduate Business Professors 2025</b> and the inaugural INFORMS Data Mining Society Teaching Award winner. Joined Butler in 2025 from Purdue's Daniels School, where he led the MS Business Analytics program to ~100% placement.</p>
+      <p class="text-xs text-slate-500 italic mt-auto">Time the semester to land in his MS 365 section.</p>
+    </article>
+  </div>
+
+  <p class="text-sm text-slate-500 mt-6">Three more in the Finance department — Dr. Stephen (Department Chair), Dr. Marshall (dual Ph.D. in Finance and Mathematics), and Dr. Templeton (Emeritus) — are detailed in the <a href="planner.html#faculty" class="text-blue-700 hover:underline">planner's faculty tab</a>.</p>
+</section>
+
+<!-- ============================ EXPERIENTIAL ============================ -->
+<section id="experiential" class="bg-slate-100 py-16 border-y border-slate-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <p class="text-xs font-semibold tracking-widest uppercase text-blue-700 mb-2">Experiential programs</p>
+    <h2 class="text-3xl font-bold mb-2 section-title">The programs that drive placement</h2>
+    <p class="text-slate-600 max-w-2xl mb-10">At most schools, internship outcomes correlate with experiential programs more than with any specific class. Butler runs four that are unusually strong.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <article class="bg-white rounded-xl border p-6">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <h3 class="text-lg font-bold">Student-Managed Investment Fund (SMIF)</h3>
+          <span class="priority-tag pri-must">P5</span>
+        </div>
+        <p class="text-sm text-slate-700 mb-3">Undergraduates manage roughly <b>$3M of real endowment money</b> across sector teams in the S&amp;P 500 universe — rare at undergraduate scale. A separate private equity fund manages another $2.5M. Run by Dr. Dolvin.</p>
+        <p class="text-xs text-slate-500"><b>Apply</b> as a rising junior. <b>Alumni placements:</b> JP Morgan, Google, Bristol Myers, Indiana PERF.</p>
+      </article>
+
+      <article class="bg-white rounded-xl border p-6">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <h3 class="text-lg font-bold">Butler Business Consulting Group (BBCG)</h3>
+          <span class="priority-tag pri-must">P5</span>
+        </div>
+        <p class="text-sm text-slate-700 mb-3">A paid student analyst program working real consulting engagements — <b>94+ clients</b> across 40 industries (Roche, Eli Lilly, Hitachi, Eskenazi Health). Generated $10M+ in revenue, $7M of which has funded Lacy programs.</p>
+        <p class="text-xs text-slate-500"><b>Apply</b> sophomore year. <b>Alumni:</b> Google, Deloitte, EY, Lilly, Roche.</p>
+      </article>
+
+      <article class="bg-white rounded-xl border p-6">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <h3 class="text-lg font-bold">Real Business Experience (EI 201)</h3>
+          <span class="priority-tag pri-must">P5</span>
+        </div>
+        <p class="text-sm text-slate-700 mb-3">Required sophomore class where teams of six (cross-major, randomly assigned to CEO/CFO/CMO roles) take a $1,000 seed loan and design, launch, and operate a real business for one semester.</p>
+        <p class="text-xs text-slate-500">Won the <b>USASBE Model Re-Emerging Program Award</b>.</p>
+      </article>
+
+      <article class="bg-white rounded-xl border p-6">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <h3 class="text-lg font-bold">Davey Risk Management &amp; Insurance</h3>
+          <span class="priority-tag pri-med">P3</span>
+        </div>
+        <p class="text-sm text-slate-700 mb-3">Includes the <b>MJ Student-Run Insurance Company, Ltd.</b> — the nation's first student-run captive insurance company. Two mandatory internships built into the major. Top-10 nationally per <em>Business Insurance</em> magazine.</p>
+        <p class="text-xs text-slate-500">Worth exploring as a second major if risk/insurance interests emerge.</p>
+      </article>
+    </div>
+
+    <p class="text-sm text-slate-500 mt-6">Plus the CFA Research Challenge, Financial Management Association (a national "Superior Chapter"), Bulldog Reports, and the two required internships (LSB 401/402). All detailed in the <a href="planner.html#experiential" class="text-blue-700 hover:underline">planner →</a>.</p>
+  </div>
+</section>
+
+<!-- ============================ STRATEGIC ANGLES ============================ -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div>
+      <p class="text-xs font-semibold tracking-widest uppercase text-blue-700 mb-2">Honors Program</p>
+      <h2 class="text-2xl font-bold mb-3 section-title">Worth pursuing for "maximize learning"</h2>
+      <p class="text-slate-700 mb-3">Butler's Honors Program is explicitly designed to work with any major. Requirements: maintain a <b>3.5 cumulative GPA</b>, complete four HN courses (one 200-level, one 300-level) at B or higher, attend eight Community Events, and complete an <b>Honors Thesis</b>.</p>
+      <p class="text-slate-700 mb-3">The thesis in particular is the resume gold — it forces a deep faculty relationship that becomes the source of both grad-school recommendation letters and summer research opportunities.</p>
+      <p class="text-slate-500 text-sm">⚠️ The 3.5 GPA floor creates tension with taking the hardest finance professors. Worth talking through up front.</p>
+    </div>
+    <div>
+      <p class="text-xs font-semibold tracking-widest uppercase text-blue-700 mb-2">Double majors &amp; minors</p>
+      <h2 class="text-2xl font-bold mb-3 section-title">~80% overlap unlocks options</h2>
+      <ul class="space-y-3 text-slate-700">
+        <li><b>Accounting</b> — most common pairing. Powerful for IB / PE analyst roles. Pairs with Butler's MS Accounting for the 150-hr CPA path.</li>
+        <li><b>Economics</b> — lighter overlap-wise. Strong for grad school or quant research.</li>
+        <li><b>Business Tech &amp; Analytics</b> — increasingly important; benefits from Lanham's presence.</li>
+        <li><b>Risk Management &amp; Insurance</b> (Davey) — niche, lucrative, top-10 nationally.</li>
+        <li class="text-slate-500"><b>Outside Lacy:</b> Data Science minor (highest-ROI add for quant / fintech), CS minor, Stats minor, Math minor.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ OPEN QUESTIONS ============================ -->
+<section id="questions" class="bg-slate-100 py-16 border-y border-slate-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <p class="text-xs font-semibold tracking-widest uppercase text-blue-700 mb-2">Open questions</p>
+    <h2 class="text-3xl font-bold mb-2 section-title">Questions to resolve before committing</h2>
+    <p class="text-slate-600 max-w-2xl mb-8">These need a direct answer from Butler advising, current students, or career services. Track progress in the planner's <a href="planner.html#questions" class="text-blue-700 hover:underline">Open Questions tab</a>.</p>
+
+    <ol class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 list-decimal pl-5 text-sm text-slate-700">
+      <li>Current FN elective offerings &amp; rotation schedule (Fall 2026 / Spring 2027).</li>
+      <li>Sample 4-year schedule fitting Honors + Finance + one minor — feasible without summers?</li>
+      <li>CFA Institute University Affiliation status &amp; available scholarships.</li>
+      <li>Endowed chairs in Finance beyond Ratliff (Dolvin).</li>
+      <li>Finance-specific placement breakdown (IB / asset mgmt / corp / insurance).</li>
+      <li>SMIF: exact application timing &amp; selection criteria.</li>
+      <li>BBCG application window &amp; typical admit GPA.</li>
+      <li>Best semester for study abroad without disrupting SMIF or recruiting.</li>
+      <li>RMP / Reddit / Coursicle deep-dive on Stephen and Marshall.</li>
+      <li>Honors thesis advisors active in Finance &amp; their topic areas.</li>
+      <li>Whether Dr. Templeton is currently teaching, and what.</li>
+      <li>CFA Research Challenge: how to join &amp; who coaches.</li>
+      <li>Lanham's MS 365 schedule for Fall 2026 / Spring 2027.</li>
+      <li>Finance + Accounting double in 4 years without summer + Honors — realistic?</li>
+      <li>Butler alumni in target career paths who'd take a meeting.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================ CTA ============================ -->
+<section class="hero-bg text-white py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+    <h2 class="text-3xl sm:text-4xl font-bold mb-4 section-title">Ready to start planning?</h2>
+    <p class="text-lg text-blue-100 max-w-2xl mx-auto mb-8">The planner has every course, every professor, an 8-semester drag-and-drop grid, a decision matrix for head-to-head comparisons, and your open-questions tracker. Saves locally in your browser.</p>
+    <a href="planner.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-blue-900 font-semibold hover:bg-blue-50 shadow-lg">
+      Open the planner →
+    </a>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="bg-slate-900 text-slate-300 py-10 text-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+      <div>
+        <h3 class="font-bold text-white mb-2">About</h3>
+        <p class="text-slate-400">A private family research project. Not affiliated with Butler University. All data sourced from Butler's public materials and named third-party sites.</p>
+      </div>
+      <div>
+        <h3 class="font-bold text-white mb-2">Primary sources</h3>
+        <ul class="space-y-1 text-slate-400">
+          <li><a class="hover:text-white" href="https://www.butler.edu/lacy-business/undergraduate-programs/finance/" target="_blank" rel="noopener">Butler Lacy School Finance</a></li>
+          <li><a class="hover:text-white" href="https://bulletin.butler.edu/preview_program.php?catoid=6&poid=1160" target="_blank" rel="noopener">Butler Bulletin (Finance, BS)</a></li>
+          <li><a class="hover:text-white" href="https://www.butler.edu/lacy-business/faculty-finance/" target="_blank" rel="noopener">Finance Faculty &amp; Staff</a></li>
+          <li><a class="hover:text-white" href="https://www.butler.edu/academics/honors/" target="_blank" rel="noopener">Honors Program</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold text-white mb-2">Third-party</h3>
+        <ul class="space-y-1 text-slate-400">
+          <li><a class="hover:text-white" href="https://poetsandquantsforundergrads.com/school-profile/lacy-school-of-business/" target="_blank" rel="noopener">Poets&amp;Quants — Lacy profile</a></li>
+          <li><a class="hover:text-white" href="https://www.ratemyprofessors.com/school/142" target="_blank" rel="noopener">RateMyProfessors — Butler</a></li>
+          <li><a class="hover:text-white" href="https://www.coursicle.com/butler/courses/FN/" target="_blank" rel="noopener">Coursicle — FN courses</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pt-6 border-t border-slate-800 text-xs text-slate-500 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <p>Last research pass: May 2026. Verify current catalog before registration.</p>
+      <a href="planner.html" class="text-slate-300 hover:text-white">Planner →</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Navbar shadow on scroll
+  const nav = document.getElementById("topnav");
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 50) nav.classList.add("shadow-md");
+    else nav.classList.remove("shadow-md");
+  });
+</script>
+
+</body>
+</html>

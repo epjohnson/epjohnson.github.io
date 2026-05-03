@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Butler Finance Planner</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial; }
+  .chip { display:inline-flex; align-items:center; font-size: 0.75rem; padding: 0.15rem 0.55rem; border-radius: 999px; font-weight: 600; }
+  .yellow { background: #fff4c2; }
+  .pri-5 { background:#dc2626; color:white; }
+  .pri-4 { background:#f97316; color:white; }
+  .pri-3 { background:#eab308; color:#111; }
+  .pri-2 { background:#a3e635; color:#111; }
+  .pri-1 { background:#e5e7eb; color:#111; }
+  .pri-0 { background:#f1f5f9; color:#94a3b8; }
+  .status-not { background:#f1f5f9; color:#475569; }
+  .status-research { background:#fef3c7; color:#854d0e; }
+  .status-planned { background:#dbeafe; color:#1e40af; }
+  .status-registered { background:#bfdbfe; color:#1e40af; }
+  .status-inprogress { background:#fde68a; color:#854d0e; }
+  .status-completed { background:#bbf7d0; color:#166534; }
+  .status-skipped { background:#fecaca; color:#991b1b; }
+  .status-required { background:#ede9fe; color:#5b21b6; }
+  .tab-btn { white-space:nowrap; }
+  .tab-btn.active { background: #1e3a8a; color: white; }
+  table.sticky thead th { position: sticky; top: 0; background: #1e3a8a; color: white; z-index: 1; }
+  tr.row-hover:hover { background: #f8fafc; }
+  details > summary { cursor: pointer; }
+  .sem-card { min-height: 200px; }
+  input, select, textarea { font: inherit; }
+  .editable { background: #fefce8; }
+  .muted { color: #64748b; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+
+<div class="max-w-[1400px] mx-auto p-4 sm:p-6">
+
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+    <div>
+      <a href="index.html" class="text-xs text-blue-700 hover:underline">&larr; Home / Research</a>
+      <h1 class="text-2xl sm:text-3xl font-bold text-blue-900">Butler Finance Planner</h1>
+      <p class="text-sm text-slate-600">Course, professor, and 4-year plan database for the Lacy School of Business Finance major.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button onclick="exportState()" class="px-3 py-1.5 text-sm rounded bg-emerald-600 text-white hover:bg-emerald-700">Export JSON</button>
+      <label class="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 cursor-pointer">
+        Import JSON
+        <input type="file" class="hidden" accept="application/json" onchange="importState(event)" />
+      </label>
+      <button onclick="resetState()" class="px-3 py-1.5 text-sm rounded bg-slate-200 text-slate-800 hover:bg-slate-300">Reset all</button>
+    </div>
+  </header>
+
+  <nav class="flex flex-wrap gap-2 mb-4 border-b border-slate-200 pb-2">
+    <button class="tab-btn px-3 py-1.5 text-sm rounded bg-white border border-slate-300 hover:bg-slate-100" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn px-3 py-1.5 text-sm rounded bg-white border border-slate-300 hover:bg-slate-100" data-tab="core">Business Core</button>
+    <button class="tab-btn px-3 py-1.5 text-sm rounded bg-white border border-slate-300 hover:bg-slate-100" data-tab="required">Finance Required</button>
+    <button class="tab-btn px-3 py-1.5 text-sm rounded bg-white border border-slate-300 hover:bg-slate-100" data-tab="electives">Finance Electives</button>
+    <button class="tab-btn px-3 py-1.5 text-sm rounded bg-white border border-slate-300 hover:bg-slate-100" data-tab="univcore">University Core</button>
+    <button class="tab-btn px-3 py-1.5 text-sm rounded bg-white border border-slate-300 hover:bg-slate-100" data-tab="faculty">Faculty</button>
+    <button class="tab-btn px-3 py-1.5 text-sm rounded bg-white border border-slate-300 hover:bg-slate-100" data-tab="experiential">Experiential</button>
+    <button class="tab-btn px-3 py-1.5 text-sm rounded bg-white border border-slate-300 hover:bg-slate-100" data-tab="planner">Semester Planner</button>
+    <button class="tab-btn px-3 py-1.5 text-sm rounded bg-white border border-slate-300 hover:bg-slate-100" data-tab="decision">Decision Matrix</button>
+    <button class="tab-btn px-3 py-1.5 text-sm rounded bg-white border border-slate-300 hover:bg-slate-100" data-tab="questions">Open Questions</button>
+  </nav>
+
+  <main id="main"></main>
+
+  <footer class="mt-12 pt-4 border-t border-slate-200 text-xs text-slate-500">
+    Data saved to your browser (localStorage). Use <b>Export JSON</b> regularly to back up. Last saved: <span id="last-saved">—</span>
+  </footer>
+</div>
+
+<script>
+// =============================================================
+//  DATA — sourced from bulletin.butler.edu, Butler Lacy pages,
+//  RateMyProfessors, Poets&Quants, Butler Stories. Research-brief
+//  citations live in the companion .md file.
+// =============================================================
+const DATA = {
+  businessCore: [
+    {id:"MA125", code:"MA 125", name:"Business Calculus", credits:3, year:"Freshman", prereqs:"—", professors:"", notes:"Take MA 106 instead if any quantitative / STEM minor possibility. Business calc does NOT articulate forward."},
+    {id:"MA106", code:"MA 106", name:"Calculus & Analytic Geometry I", credits:4, year:"Freshman", prereqs:"—", professors:"", notes:"Recommended if considering Data Science / Stats / CS minor or quant finance."},
+    {id:"EI101", code:"EI 101", name:"First-Year Business Experience", credits:3, year:"Freshman", prereqs:"—", professors:"", notes:"Lacy freshman seminar; required."},
+    {id:"MS100", code:"MS 100", name:"Business Applications with Excel", credits:2, year:"Freshman", prereqs:"—", professors:"", notes:"Foundational. Excel fluency is non-negotiable in finance."},
+    {id:"COM215", code:"COM 215", name:"Speech for Business", credits:2, year:"Freshman/Sophomore", prereqs:"—", professors:"", notes:""},
+    {id:"AC203", code:"AC 203", name:"Introduction to Accounting I", credits:3, year:"Freshman/Sophomore", prereqs:"—", professors:"", notes:"Financial accounting foundations."},
+    {id:"AC204", code:"AC 204", name:"Introduction to Accounting II", credits:3, year:"Sophomore", prereqs:"AC 203", professors:"", notes:"Managerial accounting."},
+    {id:"EI201", code:"EI 201", name:"Real Business Experience (RBE)", credits:3, year:"Sophomore", prereqs:"Lacy standing", professors:"", notes:"Flagship experiential. Teams of 6 launch a real business with $1,000 seed loan."},
+    {id:"EC231", code:"EC 231", name:"Principles of Microeconomics", credits:3, year:"Freshman/Sophomore", prereqs:"—", professors:"", notes:""},
+    {id:"EC232", code:"EC 232", name:"Principles of Macroeconomics", credits:3, year:"Freshman/Sophomore", prereqs:"—", professors:"", notes:""},
+    {id:"LE263", code:"LE 263", name:"Legal Environment of Business", credits:3, year:"Sophomore", prereqs:"—", professors:"", notes:""},
+    {id:"LE264", code:"LE 264", name:"Business Ethics", credits:3, year:"Sophomore/Junior", prereqs:"—", professors:"", notes:""},
+    {id:"LE365", code:"LE 365", name:"Business Law I", credits:3, year:"Junior", prereqs:"LE 263", professors:"", notes:""},
+    {id:"MS264", code:"MS 264", name:"Statistics", credits:3, year:"Sophomore", prereqs:"MA 125 or MA 106", professors:"", notes:"Prereq for MS 365 and many finance electives."},
+    {id:"MS265", code:"MS 265", name:"Information Technology", credits:3, year:"Sophomore", prereqs:"—", professors:"", notes:""},
+    {id:"MS365", code:"MS 365", name:"Information Technology II — Business Analytics", credits:3, year:"Junior", prereqs:"MS 264, MS 265", professors:"Dr. Matthew Lanham (Poets&Quants Top 50 Undergrad Prof 2025)", notes:"Time the semester to land in Lanham's section."},
+    {id:"FN340", code:"FN 340", name:"Corporate Finance", credits:3, year:"Sophomore/Junior", prereqs:"AC 203, EC 231, MS 264", professors:"Dr. Thomas Hanson (RMP 4.0, 100% would take again); Dr. Sheryl-Ann Stephen (Dept Chair); Dr. Mario Marshall", notes:"Gateway finance class. Hanson strongly recommended."},
+    {id:"MK380", code:"MK 380", name:"Intro to Marketing Management", credits:3, year:"Junior", prereqs:"—", professors:"", notes:""},
+    {id:"MG360", code:"MG 360", name:"Organizational Behavior", credits:3, year:"Junior", prereqs:"—", professors:"", notes:""},
+    {id:"MS350", code:"MS 350", name:"Operations & Supply Chain Management", credits:3, year:"Junior", prereqs:"MS 264", professors:"", notes:""},
+    {id:"MG490", code:"MG 490", name:"Strategy Capstone", credits:3, year:"Senior", prereqs:"Senior standing, most business core complete", professors:"", notes:"Senior capstone."},
+    {id:"LSB302", code:"LSB 302", name:"Professional & Career Development VI", credits:1, year:"Junior/Senior", prereqs:"LSB 101–301", professors:"", notes:"LSB 101–301 are 0-credit; only 302 is credit-bearing."},
+    {id:"LSB401", code:"LSB 401", name:"LSB Internship I", credits:3, year:"Sophomore/Junior summer", prereqs:"Approved internship", professors:"", notes:"REQUIRED. Most students complete summer after sophomore year."},
+    {id:"LSB402", code:"LSB 402", name:"LSB Internship II", credits:3, year:"Junior/Senior summer", prereqs:"LSB 401", professors:"", notes:"REQUIRED. Second internship, often different function or firm."},
+  ],
+
+  financeRequired: [
+    {id:"FN347", code:"FN 347", name:"Investments", credits:3, year:"Junior", prereqs:"FN 340", professors:"Dr. Steven Dolvin, CFA (Ratliff Endowed Chair)", notes:"PRIORITY 5. Dolvin is the textbook author. Universally acclaimed. Leads into SMIF.", defaultPriority:5},
+    {id:"FN451", code:"FN 451", name:"International Financial Management", credits:3, year:"Junior/Senior", prereqs:"FN 340", professors:"Dr. Bryan Foltice (RMP 4.7); Dr. Sheryl-Ann Stephen", notes:"Foltice highly reviewed. Practical and approachable.", defaultPriority:4},
+    {id:"FNE1", code:"FN Elec 1", name:"[Choose from Finance Electives]", credits:3, year:"Junior/Senior", prereqs:"FN 340", professors:"", notes:"9 hours of FN electives required — specialize by career target."},
+    {id:"FNE2", code:"FN Elec 2", name:"[Choose from Finance Electives]", credits:3, year:"Junior/Senior", prereqs:"Varies", professors:"", notes:""},
+    {id:"FNE3", code:"FN Elec 3", name:"[Choose from Finance Electives]", credits:3, year:"Junior/Senior", prereqs:"Varies", professors:"", notes:""},
+  ],
+
+  financeElectives: [
+    {id:"FN352", code:"FN 352", name:"Real Estate Principles", credits:3, instructor:"[verify]", fit:"Real estate finance, REITs, development", offered:"[verify]", notes:"Confirm current offering in catalog."},
+    {id:"FN357", code:"FN 357", name:"Behavioral Finance", credits:3, instructor:"Dr. Bryan Foltice", fit:"Asset management, financial planning, research", offered:"[verify]", notes:"Foltice's specialty. Highly reviewed."},
+    {id:"FN371", code:"FN 371", name:"Financial Institutions, Instruments & Markets", credits:3, instructor:"[verify]", fit:"Banking, sales & trading, IB, regulatory", offered:"[verify]", notes:"Core class for banking / sales & trading."},
+    {id:"FN450", code:"FN 450", name:"Derivatives Securities & Risk Management", credits:3, instructor:"[verify]", fit:"Trading, IB, risk management, asset mgmt", offered:"[verify]", notes:"Highest-value elective for IB / S&T / asset management."},
+    {id:"SMIFC", code:"SMIF", name:"Student-Managed Investment Fund (course)", credits:3, instructor:"Dr. Steven Dolvin", fit:"Asset management, equity research, PE, IB", offered:"Two-semester commitment, junior/senior", notes:"Apply as rising junior. Most resume-differentiating single class in the major."},
+    {id:"FNEF", code:"FN Entr Fin", name:"Entrepreneurial Finance (verify code)", credits:3, instructor:"[verify]", fit:"Startup / VC / small business", offered:"[verify]", notes:"Code and offering need verification."},
+    {id:"FNST", code:"FN Spec", name:"Special Topics in Finance (rotating)", credits:3, instructor:"[varies]", fit:"Varies by topic", offered:"[varies]", notes:"Topics rotate annually."},
+  ],
+
+  universityCore: [
+    {id:"FYS101", code:"FYS 101", name:"First-Year Seminar I", credits:3, area:"FYS", notes:"Honors students take HN 110 instead."},
+    {id:"FYS102", code:"FYS 102", name:"First-Year Seminar II", credits:3, area:"FYS", notes:"Honors students take HN 111 instead."},
+    {id:"GHS1", code:"GHS (x2)", name:"Global & Historical Studies (2 courses)", credits:6, area:"GHS", notes:"Strategic GPA space — pick highly-rated professors."},
+    {id:"PCA1", code:"PCA", name:"Perspective in Creative Arts", credits:3, area:"PCA", notes:"Interest-driven; often easier GPA territory."},
+    {id:"PWB1", code:"PWB", name:"Physical Well Being", credits:2, area:"PWB", notes:""},
+    {id:"NW1", code:"NW", name:"Natural World (science + lab)", credits:4, area:"NW", notes:"Non-STEM students often take Astronomy or Environmental Science."},
+    {id:"TI1", code:"TI", name:"Texts & Ideas", credits:3, area:"TI", notes:""},
+    {id:"LAS1", code:"LAS", name:"Liberal Arts & Sciences electives", credits:6, area:"LAS", notes:"Good place to stack a minor's first course."},
+    {id:"UE1", code:"UE", name:"University Electives", credits:12, area:"UE", notes:"Best vehicle for a minor or exploratory courses."},
+    {id:"HN110", code:"HN 110/111", name:"Honors First-Year Seminar (Honors only)", credits:0, area:"Honors", notes:"Replaces FYS 101/102. Counts as 1 of 4 HN courses."},
+    {id:"HN200", code:"HN 200-lvl", name:"Honors 200-level (Honors only)", credits:3, area:"Honors", notes:"Must earn B or higher."},
+    {id:"HN300", code:"HN 300-lvl", name:"Honors 300-level (Honors only)", credits:3, area:"Honors", notes:"Must earn B or higher."},
+    {id:"HNELC", code:"HN elective", name:"Honors elective (Honors only)", credits:3, area:"Honors", notes:"Must earn B or higher."},
+    {id:"HNTH", code:"Thesis", name:"Honors Thesis", credits:3, area:"Honors", notes:"Begin advisor conversations junior year."},
+  ],
+
+  faculty: [
+    {id:"fac_dolvin", name:"Dr. Steven Dolvin, CFA", title:"Professor of Finance; Ratliff Endowed Chair", dept:"Finance", courses:"FN 347 Investments; SMIF",
+      specialization:"Investments; student-managed public & private equity portfolios",
+      rmpQuality:"High (universally praised)", rmpDifficulty:"Challenging but fair", retake:"[verify]",
+      teachingNotes:"Whiteboard-based. Textbook author (Fundamentals of Investments, McGraw-Hill). Generous extra credit. Lecture videos posted. Students say they learn more in his class than any other at Butler.",
+      notable:"Multiple teaching awards; Ratliff Endowed Chair; oversees $3M+ in student-managed funds",
+      defaultPriority:5},
+    {id:"fac_hanson", name:"Dr. Thomas Hanson", title:"Associate Professor of Finance", dept:"Finance", courses:"FN 340 Corporate Finance; Investments; Valuation",
+      specialization:"Corporate finance; market microstructure; HFT; quantitative methodology",
+      rmpQuality:"4.0/5", rmpDifficulty:"3/5", retake:"100%",
+      teachingNotes:"Great analogies. Hard homework that prepares students well for exams. Shares interesting articles. Genuinely cares.",
+      notable:"Faculty advisor to FMA (Superior Chapter). Teaches in MS Risk & Insurance and MS Data Analytics programs.",
+      defaultPriority:5},
+    {id:"fac_foltice", name:"Dr. Bryan Foltice", title:"Associate Professor of Finance", dept:"Finance", courses:"FN 451 Intl Financial Mgmt; FN 357 Behavioral Finance; Investments",
+      specialization:"International finance; behavioral finance; personal finance; retirement",
+      rmpQuality:"4.7/5", rmpDifficulty:"3.3/5", retake:"80%",
+      teachingNotes:"Laid-back, funny, approachable. 'Practical and educational without feeling like a lecture.'",
+      notable:"Ph.D. University of Muenster (Germany), magna cum laude. Former Fidelity and Deutsche Bank. Former pro basketball player in Germany.",
+      defaultPriority:4},
+    {id:"fac_stephen", name:"Dr. Sheryl-Ann Stephen", title:"Professor of Finance; Department Chair", dept:"Finance", courses:"FN 340 Corporate Finance; Financial Markets & Institutions",
+      specialization:"Corporate finance; corporate governance; CSR; financial education",
+      rmpQuality:"[research]", rmpDifficulty:"[research]", retake:"[research]",
+      teachingNotes:"[Pull RMP, Reddit, Coursicle before registering.]",
+      notable:"Department Chair. Ph.D. UT Arlington. Multilingual.",
+      defaultPriority:null},
+    {id:"fac_marshall", name:"Dr. Mario Marshall", title:"Lecturer / Assistant Professor in Finance", dept:"Finance", courses:"Corporate Finance; Financial Statement Analysis",
+      specialization:"Corporate finance; working capital; ESG; financial statement analysis",
+      rmpQuality:"[research]", rmpDifficulty:"[research]", retake:"[research]",
+      teachingNotes:"[Pull RMP, Reddit, Coursicle before registering.]",
+      notable:"Dual Ph.D. — Finance (USF) AND Mathematics (FAU). Graduate degrees in Stats and Supply Chain.",
+      defaultPriority:null},
+    {id:"fac_lanham", name:"Dr. Matthew Lanham", title:"Assistant Professor, Business Tech & Analytics", dept:"Business Tech & Analytics", courses:"MS 365 Business Analytics",
+      specialization:"Business analytics; data mining; operations research",
+      rmpQuality:"[new to Butler — build up]", rmpDifficulty:"[research]", retake:"[research]",
+      teachingNotes:"Experiential-learning focused. 'Helps students grow until they no longer need him.'",
+      notable:"Poets&Quants Top 50 Undergraduate Business Professors 2025. INFORMS Data Mining Teaching Award 2025. Joined from Purdue (led MS BAIM to ~100% placement).",
+      defaultPriority:5},
+    {id:"fac_templeton", name:"Dr. Bill Templeton", title:"Emeritus Faculty / former Associate Dean", dept:"Finance", courses:"Historically: Corporate finance; Investments; Risk & insurance",
+      specialization:"Corporate finance; retirement investing; risk & insurance",
+      rmpQuality:"[research]", rmpDifficulty:"—", retake:"—",
+      teachingNotes:"Led London study trips historically.",
+      notable:"Long-tenured (since 1988). Mortar Board and Beta Gamma Sigma awards. Consulted on retirement plans for NFL players.",
+      defaultPriority:null},
+  ],
+
+  experiential: [
+    {id:"exp_smif", name:"Student-Managed Investment Fund (SMIF)", type:"Course + fund",
+      description:"Undergrads manage ~$3M of real endowment across sector-based teams, S&P 500 universe. Rare at undergrad level.",
+      timing:"Apply as rising junior. Two-semester commitment.",
+      prereqs:"FN 340, FN 347, application to Dolvin.",
+      fit:"Asset management, equity research, IB, PE — any investing-adjacent role",
+      notes:"Dr. Dolvin runs it. Alumni at JP Morgan, Google, Bristol Myers, Indiana PERF.",
+      defaultPriority:5},
+    {id:"exp_bbcg", name:"Butler Business Consulting Group (BBCG)", type:"Paid student analyst internship",
+      description:"On-campus consulting firm with real Fortune 500 clients (Roche, Lilly, Hitachi, Eskenazi, MJ Insurance). 94+ clients historically.",
+      timing:"Apply sophomore year for junior-year analyst roles.",
+      prereqs:"Application, strong academics, interview.",
+      fit:"Consulting, corp dev, strategy, analyst roles",
+      notes:"$10M+ revenue generated. Alumni at Google, Deloitte, EY, Lilly, Roche.",
+      defaultPriority:5},
+    {id:"exp_rbe", name:"Real Business Experience (EI 201)", type:"Required course",
+      description:"Teams of 6 across majors launch and run a real business for a semester with $1,000 seed loan.",
+      timing:"Required sophomore year for all Lacy students.",
+      prereqs:"Lacy standing.",
+      fit:"Universal — tests entrepreneurial execution",
+      notes:"Won USASBE Model Re-Emerging Program Award.",
+      defaultPriority:5},
+    {id:"exp_davey", name:"Davey Risk Management & Insurance program", type:"Major / minor / courses",
+      description:"RMI curriculum plus MJ Student-Run Insurance Company — nation's first student-run captive insurance company. Top-10 nationally.",
+      timing:"Declare RMI major or minor; take RMI electives.",
+      prereqs:"By declaration; two mandatory internships.",
+      fit:"Insurance, actuarial, risk, reinsurance, consulting",
+      notes:"Worth exploring as second major if risk/insurance interests emerge.",
+      defaultPriority:3},
+    {id:"exp_cfarc", name:"CFA Research Challenge", type:"Competition team",
+      description:"Butler competes in the CFA Institute global equity research competition.",
+      timing:"Apply junior/senior year; likely via SMIF or FMA.",
+      prereqs:"Strong finance coursework; interview.",
+      fit:"Equity research, asset management, IB",
+      notes:"Prestigious resume line.",
+      defaultPriority:4},
+    {id:"exp_fma", name:"Financial Management Association (FMA)", type:"Student organization",
+      description:"National 'Superior Chapter'. Central finance student organization.",
+      timing:"Join freshman/sophomore year. Seek leadership.",
+      prereqs:"Open to all finance majors.",
+      fit:"All finance paths",
+      notes:"Dr. Hanson is faculty advisor. Gateway to alumni and competitions.",
+      defaultPriority:4},
+    {id:"exp_internships", name:"Two required internships (LSB 401 + LSB 402)", type:"Required",
+      description:"Every Lacy student completes at least two internships before graduation.",
+      timing:"Summer after sophomore (LSB 401), summer after junior (LSB 402).",
+      prereqs:"Lacy Career Development approval.",
+      fit:"All — career-targeted",
+      notes:"100% of recent classes completed at least one. Featured employers: Lilly, Deloitte, Roche, Salesforce, JP Morgan.",
+      defaultPriority:5},
+    {id:"exp_bulldog", name:"Bulldog Reports", type:"Student-run media",
+      description:"Lacy School student-run business reporting outlet.",
+      timing:"Apply via Lacy experiential learning.",
+      prereqs:"[verify]",
+      fit:"Corporate comms / research / writing",
+      notes:"Relevant for anyone interested in writing / media exposure.",
+      defaultPriority:2},
+    {id:"exp_abroad", name:"Study Abroad (Lacy or Butler-wide)", type:"Semester program",
+      description:"Semester abroad. Lacy has business-specific programs; Templeton historically led London trips.",
+      timing:"Typically junior fall (keeps junior spring/senior year free for SMIF and recruiting).",
+      prereqs:"Academic standing; financial aid transferability check.",
+      fit:"Global business exposure; language / culture",
+      notes:"Plan carefully around SMIF and recruiting.",
+      defaultPriority:2},
+    {id:"exp_honors", name:"Honors Program", type:"Program",
+      description:"3.5 GPA floor, 4 HN courses (1 x 200-level, 1 x 300-level) at B+, 8 Community Events, Honors Thesis.",
+      timing:"Apply pre-matriculation or after Y1 internal app.",
+      prereqs:"Academic credentials or internal application.",
+      fit:"Grad school prep; research exposure; rec letter depth",
+      notes:"Works with any major. Strong ROI for competitive recruiting or grad school.",
+      defaultPriority:4},
+  ],
+
+  openQuestions: [
+    {id:"q1", text:"What are the current (Fall 2026 / Spring 2027) FN elective offerings and the full rotation schedule?", who:"Lacy advising; bulletin.butler.edu; Coursicle fall schedule"},
+    {id:"q2", text:"Map a sample 4-year schedule fitting Honors + Finance + one minor. Feasible without summers?", who:"Lacy advising"},
+    {id:"q3", text:"Is Butler formally a CFA Institute University Affiliation Program school? Scholarships?", who:"CFA Institute directory; Dr. Dolvin; Dr. Stephen"},
+    {id:"q4", text:"Named endowed chairs in Finance beyond the Ratliff chair (Dolvin)?", who:"Butler faculty directory"},
+    {id:"q5", text:"Finance-specific placement data (IB / asset mgmt / corporate / insurance) and typical employers.", who:"Lacy Career Development; LinkedIn alumni"},
+    {id:"q6", text:"SMIF: exact application timing, prereqs, typical class standing.", who:"Dr. Dolvin; SMIF alumni on LinkedIn"},
+    {id:"q7", text:"BBCG: application timing, selection criteria, typical admit GPA.", who:"BBCG blog; Lacy internship coordinator"},
+    {id:"q8", text:"Study abroad: best semester for Finance; which programs count toward Finance credits.", who:"Butler study abroad; Lacy advising"},
+    {id:"q9", text:"Pull RMP / Reddit / Coursicle reviews for Dr. Stephen and Dr. Marshall.", who:"RateMyProfessors; r/butleru; Coursicle"},
+    {id:"q10", text:"Which Finance faculty routinely advise Honors theses? In what topic areas?", who:"Honors Program office; Finance department"},
+    {id:"q11", text:"Is Dr. Bill Templeton currently teaching? Which classes?", who:"Butler registrar schedule"},
+    {id:"q12", text:"CFA Research Challenge: how to join; who coaches?", who:"Dr. Hanson (FMA); SMIF team"},
+    {id:"q13", text:"Does MS 365 Business Analytics have Lanham for Fall 2026 or Spring 2027?", who:"Butler course schedule"},
+    {id:"q14", text:"Finance + Accounting double major in 4 years without summer — realistic with Honors?", who:"Lacy advising; catalog"},
+    {id:"q15", text:"Butler alumni in target career paths (IB, asset mgmt, corp dev) — who, and would they meet?", who:"LinkedIn alumni search; Lacy Career Mentors"},
+  ],
+};
+
+const SEMESTERS = [
+  "Year 1 — Fall 2026", "Year 1 — Spring 2027",
+  "Year 2 — Fall 2027", "Year 2 — Spring 2028",
+  "Year 3 — Fall 2028", "Year 3 — Spring 2029",
+  "Year 4 — Fall 2029", "Year 4 — Spring 2030",
+];
+
+const STATUSES = [
+  {v:"not", label:"Not started", cls:"status-not"},
+  {v:"research", label:"Researching", cls:"status-research"},
+  {v:"planned", label:"Planned", cls:"status-planned"},
+  {v:"registered", label:"Registered", cls:"status-registered"},
+  {v:"inprogress", label:"In progress", cls:"status-inprogress"},
+  {v:"completed", label:"Completed", cls:"status-completed"},
+  {v:"skipped", label:"Skipped", cls:"status-skipped"},
+];
+
+// =============================================================
+//  STATE + PERSISTENCE
+// =============================================================
+const STORAGE_KEY = "butler-finance-planner-v1";
+let state = loadState();
+
+function defaultState() {
+  const s = { prefs: {}, plan: {}, decisionMatrix: [], questions: {} };
+  for (const s2 of SEMESTERS) s.plan[s2] = [];
+  // seed default priorities
+  for (const c of DATA.financeRequired) if (c.defaultPriority) s.prefs[c.id] = { ...(s.prefs[c.id]||{}), priority: c.defaultPriority };
+  for (const f of DATA.faculty) if (f.defaultPriority) s.prefs[f.id] = { ...(s.prefs[f.id]||{}), priority: f.defaultPriority };
+  for (const e of DATA.experiential) if (e.defaultPriority) s.prefs[e.id] = { ...(s.prefs[e.id]||{}), priority: e.defaultPriority };
+  return s;
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    const d = defaultState();
+    return { ...d, ...parsed, prefs: { ...d.prefs, ...(parsed.prefs||{}) }, plan: { ...d.plan, ...(parsed.plan||{}) }, questions: { ...d.questions, ...(parsed.questions||{}) } };
+  } catch(e) { return defaultState(); }
+}
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  document.getElementById("last-saved").textContent = new Date().toLocaleString();
+}
+function getPref(id) { return state.prefs[id] || {}; }
+function setPref(id, patch) { state.prefs[id] = { ...getPref(id), ...patch }; saveState(); }
+
+function exportState() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `butler-finance-planner-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+function importState(evt) {
+  const f = evt.target.files[0]; if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      const d = defaultState();
+      state = { ...d, ...parsed, prefs: { ...d.prefs, ...(parsed.prefs||{}) }, plan: { ...d.plan, ...(parsed.plan||{}) }, questions: { ...d.questions, ...(parsed.questions||{}) } };
+      saveState(); render();
+      alert("Imported successfully.");
+    } catch(e) { alert("Import failed: " + e.message); }
+  };
+  reader.readAsText(f);
+}
+function resetState() {
+  if (!confirm("Reset all saved preferences, semester plan, and notes?")) return;
+  state = defaultState();
+  saveState(); render();
+}
+
+// =============================================================
+//  RENDERING
+// =============================================================
+const ALL_COURSES = () => [...DATA.businessCore, ...DATA.financeRequired, ...DATA.financeElectives, ...DATA.universityCore];
+function findCourse(id) { return ALL_COURSES().find(c => c.id === id); }
+
+let currentTab = "dashboard";
+function showTab(tab) {
+  currentTab = tab;
+  for (const btn of document.querySelectorAll(".tab-btn")) btn.classList.toggle("active", btn.dataset.tab === tab);
+  render();
+}
+document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
+
+function chipPriority(p) {
+  if (p === undefined || p === null || p === "") return `<span class="chip pri-0">—</span>`;
+  return `<span class="chip pri-${p}">P${p}</span>`;
+}
+function chipStatus(v) {
+  const s = STATUSES.find(x => x.v === v);
+  if (!s) return `<span class="chip status-not">Not started</span>`;
+  return `<span class="chip ${s.cls}">${s.label}</span>`;
+}
+function selectPriority(id) {
+  const p = getPref(id).priority;
+  return `<select class="text-xs border rounded px-1 py-0.5 bg-white" onchange="setPref('${id}',{priority: this.value===''?null:Number(this.value)}); render()">
+    <option value="" ${p==null?'selected':''}>—</option>
+    ${[1,2,3,4,5].map(n => `<option value="${n}" ${p===n?'selected':''}>P${n}</option>`).join("")}
+  </select>`;
+}
+function selectStatus(id) {
+  const v = getPref(id).status || "not";
+  return `<select class="text-xs border rounded px-1 py-0.5 bg-white" onchange="setPref('${id}',{status:this.value}); render()">
+    ${STATUSES.map(s => `<option value="${s.v}" ${s.v===v?'selected':''}>${s.label}</option>`).join("")}
+  </select>`;
+}
+function inputText(id, field, placeholder="") {
+  const v = getPref(id)[field] || "";
+  const esc = v.replace(/"/g,"&quot;");
+  return `<input type="text" value="${esc}" placeholder="${placeholder}" class="text-xs border rounded px-2 py-1 w-full bg-yellow-50" onchange="setPref('${id}',{${field}:this.value}); render()" />`;
+}
+function textareaNotes(id) {
+  const v = getPref(id).notes || "";
+  return `<textarea rows="2" class="text-xs border rounded px-2 py-1 w-full bg-yellow-50" placeholder="Research notes, links, RMP summaries..." onchange="setPref('${id}',{notes:this.value})">${v.replace(/</g,"&lt;")}</textarea>`;
+}
+
+// ---- DASHBOARD ----
+function renderDashboard() {
+  const totalCourses = DATA.businessCore.length + DATA.financeRequired.length;
+  const p5 = Object.entries(state.prefs).filter(([k,v]) => v.priority === 5).length;
+  const completed = Object.entries(state.prefs).filter(([k,v]) => v.status === "completed").length;
+  const planned = Object.entries(state.prefs).filter(([k,v]) => v.status === "planned" || v.status === "registered").length;
+  const totalPlannedCreds = SEMESTERS.reduce((sum, s) => sum + (state.plan[s] || []).reduce((a, id) => a + (findCourse(id)?.credits || 0), 0), 0);
+  const openQs = DATA.openQuestions.length - Object.values(state.questions).filter(q => q.status === "resolved").length;
+
+  // top priority list
+  const items = [];
+  for (const c of [...DATA.businessCore, ...DATA.financeRequired]) {
+    const p = getPref(c.id).priority;
+    if (p) items.push({ kind:"Course", id:c.id, label:`${c.code} — ${c.name}`, p, notes: c.notes });
+  }
+  for (const f of DATA.faculty) {
+    const p = getPref(f.id).priority;
+    if (p) items.push({ kind:"Faculty", id:f.id, label:`${f.name} (${f.courses})`, p, notes: f.teachingNotes });
+  }
+  for (const e of DATA.experiential) {
+    const p = getPref(e.id).priority;
+    if (p) items.push({ kind:"Experiential", id:e.id, label:e.name, p, notes: e.description });
+  }
+  items.sort((a,b) => b.p - a.p);
+
+  return `
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div class="bg-white rounded-lg border p-4">
+        <div class="text-xs uppercase text-slate-500 font-semibold">Total required courses</div>
+        <div class="text-2xl font-bold">${totalCourses}</div>
+        <div class="text-xs text-slate-500">Business core + Finance required</div>
+      </div>
+      <div class="bg-white rounded-lg border p-4">
+        <div class="text-xs uppercase text-slate-500 font-semibold">Priority-5 items</div>
+        <div class="text-2xl font-bold text-red-600">${p5}</div>
+        <div class="text-xs text-slate-500">Must take with top professor</div>
+      </div>
+      <div class="bg-white rounded-lg border p-4">
+        <div class="text-xs uppercase text-slate-500 font-semibold">Credits planned</div>
+        <div class="text-2xl font-bold text-blue-700">${totalPlannedCreds}</div>
+        <div class="text-xs text-slate-500">Across 8 semesters (target: 122)</div>
+      </div>
+      <div class="bg-white rounded-lg border p-4">
+        <div class="text-xs uppercase text-slate-500 font-semibold">Open questions</div>
+        <div class="text-2xl font-bold text-amber-600">${openQs}</div>
+        <div class="text-xs text-slate-500">Items to research</div>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-lg border p-4 mb-6">
+      <h2 class="text-lg font-bold mb-3">Top-priority items</h2>
+      ${items.length === 0 ? `<p class="text-sm text-slate-500">No priorities set yet. Start by setting priority on required finance courses and key faculty.</p>` :
+        `<ul class="divide-y">
+          ${items.map(it => `<li class="py-2 flex items-center gap-3">
+            ${chipPriority(it.p)}
+            <span class="text-xs uppercase text-slate-500 w-24">${it.kind}</span>
+            <span class="font-medium">${it.label}</span>
+            <span class="text-xs text-slate-500 flex-1 truncate">${(it.notes||"").slice(0,120)}</span>
+          </li>`).join("")}
+        </ul>`
+      }
+    </section>
+
+    <section class="bg-white rounded-lg border p-4 mb-6">
+      <h2 class="text-lg font-bold mb-2">How to use this planner</h2>
+      <ol class="list-decimal pl-5 text-sm space-y-1 text-slate-700">
+        <li>Go through <b>Business Core</b> and <b>Finance Required</b> and set Priority (1-5) for each course. Priority 5 = plan the schedule around it.</li>
+        <li>In <b>Faculty</b>, mark the professors you most want to take. Use notes to paste RMP / Reddit / Coursicle findings.</li>
+        <li>In <b>Experiential</b>, mark SMIF / BBCG / internships as Planned early — their application timing matters.</li>
+        <li>In <b>Semester Planner</b>, drag and drop courses into each semester. Credits auto-sum. Aim for ~15 credits per semester.</li>
+        <li>Use <b>Decision Matrix</b> when deciding between professors or electives — score on 5 criteria and let totals rank them.</li>
+        <li>Resolve <b>Open Questions</b> as you get answers from advising, current students, or Lacy Career Development.</li>
+        <li><b>Export JSON regularly</b> to back up. Data lives in this browser only.</li>
+      </ol>
+    </section>
+  `;
+}
+
+// ---- COURSE TABLES ----
+function renderCourseTable(title, rows, kind) {
+  const q = (state._filter || {})[kind] || {};
+  const search = q.search || "";
+  const filtered = rows.filter(r => {
+    if (!search) return true;
+    const hay = `${r.code} ${r.name} ${r.year||""} ${r.professors||""} ${r.notes||""}`.toLowerCase();
+    return hay.includes(search.toLowerCase());
+  });
+
+  return `
+    <section class="bg-white rounded-lg border p-4 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h2 class="text-lg font-bold">${title}</h2>
+        <input type="text" placeholder="Filter by code, name, professor, year, notes…" value="${search.replace(/"/g,'&quot;')}"
+          class="text-sm border rounded px-2 py-1 w-80" oninput="state._filter=state._filter||{}; state._filter['${kind}']={search:this.value}; render()" />
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm sticky">
+          <thead>
+            <tr>
+              <th class="text-left px-2 py-2">Code</th>
+              <th class="text-left px-2 py-2">Name</th>
+              <th class="text-center px-2 py-2">Cr</th>
+              <th class="text-left px-2 py-2">Year</th>
+              <th class="text-left px-2 py-2">Prereqs</th>
+              <th class="text-left px-2 py-2 w-40">Professor(s)</th>
+              <th class="text-center px-2 py-2">Priority</th>
+              <th class="text-center px-2 py-2">Status</th>
+              <th class="text-left px-2 py-2 w-32">Target sem</th>
+              <th class="text-left px-2 py-2 w-40">Preferred prof</th>
+              <th class="text-left px-2 py-2 min-w-[240px]">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map(r => `
+              <tr class="row-hover border-b align-top">
+                <td class="px-2 py-2 font-semibold">${r.code}</td>
+                <td class="px-2 py-2">${r.name}</td>
+                <td class="px-2 py-2 text-center">${r.credits}</td>
+                <td class="px-2 py-2 text-xs text-slate-600">${r.year||""}</td>
+                <td class="px-2 py-2 text-xs text-slate-600">${r.prereqs||""}</td>
+                <td class="px-2 py-2 text-xs">${r.professors||`<span class="muted">—</span>`}</td>
+                <td class="px-2 py-2 text-center">${selectPriority(r.id)}</td>
+                <td class="px-2 py-2 text-center">${selectStatus(r.id)}</td>
+                <td class="px-2 py-2">${selectSemester(r.id)}</td>
+                <td class="px-2 py-2">${inputText(r.id,"preferredProfessor","professor name")}</td>
+                <td class="px-2 py-2">
+                  ${r.notes ? `<div class="text-xs text-slate-600 mb-1">${r.notes}</div>` : ""}
+                  ${textareaNotes(r.id)}
+                </td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
+function selectSemester(id) {
+  const v = getPref(id).targetSemester || "";
+  return `<select class="text-xs border rounded px-1 py-0.5 bg-yellow-50 w-32" onchange="setPref('${id}',{targetSemester:this.value})">
+    <option value="">—</option>
+    ${SEMESTERS.map(s => `<option value="${s}" ${s===v?'selected':''}>${s}</option>`).join("")}
+  </select>`;
+}
+
+function renderCore() { return renderCourseTable("Business Core (required for all Lacy majors)", DATA.businessCore, "core"); }
+function renderRequired() { return renderCourseTable("Finance Required", DATA.financeRequired, "required"); }
+function renderUnivCore() {
+  const rows = DATA.universityCore.map(r => ({ ...r, year:"—", prereqs:"—", professors:r.area }));
+  return renderCourseTable("University Core (Gen-Eds + Honors)", rows, "univ");
+}
+function renderElectives() {
+  const q = (state._filter || {})["elec"] || {};
+  const search = q.search || "";
+  const filtered = DATA.financeElectives.filter(r => !search ||
+    `${r.code} ${r.name} ${r.instructor} ${r.fit} ${r.notes}`.toLowerCase().includes(search.toLowerCase()));
+  return `
+    <section class="bg-white rounded-lg border p-4 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h2 class="text-lg font-bold">Finance Electives (9 hours required — choose by career target)</h2>
+        <input type="text" placeholder="Filter…" value="${search.replace(/"/g,'&quot;')}"
+          class="text-sm border rounded px-2 py-1 w-72" oninput="state._filter=state._filter||{}; state._filter['elec']={search:this.value}; render()" />
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm sticky">
+          <thead>
+            <tr>
+              <th class="text-left px-2 py-2">Code</th>
+              <th class="text-left px-2 py-2">Name</th>
+              <th class="text-center px-2 py-2">Cr</th>
+              <th class="text-left px-2 py-2">Typical Instructor</th>
+              <th class="text-left px-2 py-2">Career Target Fit</th>
+              <th class="text-left px-2 py-2">Offered</th>
+              <th class="text-center px-2 py-2">Priority</th>
+              <th class="text-center px-2 py-2">Status</th>
+              <th class="text-left px-2 py-2 min-w-[240px]">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map(r => `
+              <tr class="row-hover border-b align-top">
+                <td class="px-2 py-2 font-semibold">${r.code}</td>
+                <td class="px-2 py-2">${r.name}</td>
+                <td class="px-2 py-2 text-center">${r.credits}</td>
+                <td class="px-2 py-2 text-xs">${r.instructor||""}</td>
+                <td class="px-2 py-2 text-xs">${r.fit||""}</td>
+                <td class="px-2 py-2 text-xs">${r.offered||""}</td>
+                <td class="px-2 py-2 text-center">${selectPriority(r.id)}</td>
+                <td class="px-2 py-2 text-center">${selectStatus(r.id)}</td>
+                <td class="px-2 py-2">
+                  ${r.notes ? `<div class="text-xs text-slate-600 mb-1">${r.notes}</div>` : ""}
+                  ${textareaNotes(r.id)}
+                </td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
+// ---- FACULTY ----
+function renderFaculty() {
+  const q = (state._filter || {})["fac"] || {};
+  const search = q.search || "";
+  const filtered = DATA.faculty.filter(r => !search ||
+    `${r.name} ${r.title} ${r.dept} ${r.courses} ${r.specialization} ${r.notable} ${r.teachingNotes}`.toLowerCase().includes(search.toLowerCase()));
+  return `
+    <section class="bg-white rounded-lg border p-4 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h2 class="text-lg font-bold">Faculty</h2>
+        <input type="text" placeholder="Filter by name, course, specialty…" value="${search.replace(/"/g,'&quot;')}"
+          class="text-sm border rounded px-2 py-1 w-80" oninput="state._filter=state._filter||{}; state._filter['fac']={search:this.value}; render()" />
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        ${filtered.map(f => `
+          <div class="border rounded-lg p-4">
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div>
+                <h3 class="font-bold text-base">${f.name}</h3>
+                <div class="text-xs text-slate-600">${f.title}</div>
+              </div>
+              <div class="flex flex-col items-end gap-1">
+                ${chipPriority(getPref(f.id).priority)}
+                ${selectPriority(f.id)}
+              </div>
+            </div>
+            <dl class="text-xs grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 mb-3">
+              <dt class="font-semibold text-slate-500">Courses</dt><dd>${f.courses}</dd>
+              <dt class="font-semibold text-slate-500">Specialization</dt><dd>${f.specialization}</dd>
+              <dt class="font-semibold text-slate-500">RMP Quality</dt><dd>${f.rmpQuality}</dd>
+              <dt class="font-semibold text-slate-500">Difficulty</dt><dd>${f.rmpDifficulty}</dd>
+              <dt class="font-semibold text-slate-500">Retake %</dt><dd>${f.retake}</dd>
+              <dt class="font-semibold text-slate-500">Teaching style</dt><dd>${f.teachingNotes}</dd>
+              <dt class="font-semibold text-slate-500">Notable</dt><dd>${f.notable}</dd>
+            </dl>
+            <label class="text-xs text-slate-500 font-semibold">Your notes / research</label>
+            ${textareaNotes(f.id)}
+          </div>`).join("")}
+      </div>
+    </section>
+  `;
+}
+
+// ---- EXPERIENTIAL ----
+function renderExperiential() {
+  return `
+    <section class="bg-white rounded-lg border p-4 mb-6">
+      <h2 class="text-lg font-bold mb-3">Experiential Programs (matter more than any single class)</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        ${DATA.experiential.map(e => `
+          <div class="border rounded-lg p-4">
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div>
+                <h3 class="font-bold text-base">${e.name}</h3>
+                <div class="text-xs text-slate-600">${e.type}</div>
+              </div>
+              <div class="flex flex-col items-end gap-1">
+                ${chipPriority(getPref(e.id).priority)}
+                ${selectPriority(e.id)}
+              </div>
+            </div>
+            <p class="text-sm mb-2">${e.description}</p>
+            <dl class="text-xs grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 mb-3">
+              <dt class="font-semibold text-slate-500">Timing</dt><dd>${e.timing}</dd>
+              <dt class="font-semibold text-slate-500">Entry</dt><dd>${e.prereqs}</dd>
+              <dt class="font-semibold text-slate-500">Career fit</dt><dd>${e.fit}</dd>
+              <dt class="font-semibold text-slate-500">Context</dt><dd>${e.notes}</dd>
+              <dt class="font-semibold text-slate-500">Status</dt><dd>${selectStatus(e.id)}</dd>
+            </dl>
+            <label class="text-xs text-slate-500 font-semibold">Your notes</label>
+            ${textareaNotes(e.id)}
+          </div>`).join("")}
+      </div>
+    </section>
+  `;
+}
+
+// ---- SEMESTER PLANNER ----
+function renderPlanner() {
+  const coursesAll = [...DATA.businessCore, ...DATA.financeRequired, ...DATA.financeElectives, ...DATA.universityCore];
+  const plannedIds = new Set(Object.values(state.plan).flat());
+
+  const cards = SEMESTERS.map(sem => {
+    const ids = state.plan[sem] || [];
+    const credits = ids.reduce((a, id) => a + (findCourse(id)?.credits || 0), 0);
+    const credStyle = credits < 12 ? "text-amber-600" : credits > 18 ? "text-red-600" : "text-emerald-700";
+    const avail = coursesAll.filter(c => !plannedIds.has(c.id) || ids.includes(c.id));
+    return `
+      <div class="bg-white border rounded-lg p-3 sem-card flex flex-col">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-semibold text-sm">${sem}</h3>
+          <span class="text-xs font-bold ${credStyle}">${credits} cr</span>
+        </div>
+        <ul class="flex-1 space-y-1 mb-2">
+          ${ids.map(id => {
+            const c = findCourse(id);
+            if (!c) return "";
+            return `<li class="flex items-center justify-between text-xs bg-slate-50 rounded px-2 py-1">
+              <span><b>${c.code}</b> · ${c.name} <span class="muted">(${c.credits}cr)</span></span>
+              <button title="Remove" class="text-red-500 hover:text-red-700 font-bold" onclick="removeFromSemester('${sem}','${id}')">×</button>
+            </li>`;
+          }).join("") || `<li class="text-xs text-slate-400 italic">No courses yet</li>`}
+        </ul>
+        <select class="text-xs border rounded px-2 py-1 bg-yellow-50" onchange="addToSemester('${sem}', this.value); this.value=''">
+          <option value="">+ Add course…</option>
+          ${avail.filter(c => !ids.includes(c.id)).map(c => `<option value="${c.id}">${c.code} — ${c.name} (${c.credits}cr)</option>`).join("")}
+        </select>
+      </div>
+    `;
+  }).join("");
+
+  const totalCreds = SEMESTERS.reduce((a, s) => a + (state.plan[s]||[]).reduce((x,id) => x + (findCourse(id)?.credits||0), 0), 0);
+  const target = 122;
+
+  return `
+    <section class="bg-white rounded-lg border p-4 mb-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold">Semester Planner</h2>
+        <div class="text-sm"><span class="text-slate-500">Total credits planned:</span> <b class="${totalCreds >= target ? 'text-emerald-700' : 'text-amber-600'}">${totalCreds}</b> <span class="text-slate-400">/ ${target}</span></div>
+      </div>
+      <p class="text-xs text-slate-600 mt-1">Target: ~15 credits per semester. Yellow dropdown adds a course. ×&nbsp;removes it. Courses on the list of planned courses disappear from other semesters' dropdowns to avoid duplicates.</p>
+    </section>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">${cards}</div>
+  `;
+}
+function addToSemester(sem, id) { if (!id) return; state.plan[sem] = state.plan[sem] || []; if (!state.plan[sem].includes(id)) state.plan[sem].push(id); saveState(); render(); }
+function removeFromSemester(sem, id) { state.plan[sem] = (state.plan[sem]||[]).filter(x => x !== id); saveState(); render(); }
+
+// ---- DECISION MATRIX ----
+function renderDecision() {
+  const rows = state.decisionMatrix || [];
+  return `
+    <section class="bg-white rounded-lg border p-4 mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-bold">Decision Matrix</h2>
+        <button class="text-sm rounded bg-blue-600 text-white px-3 py-1 hover:bg-blue-700" onclick="addDecisionRow()">+ Add option</button>
+      </div>
+      <p class="text-xs text-slate-600 mb-2">Compare two or more options side-by-side on five criteria. Total auto-sums; highest total is the top choice. Use for "Dolvin vs. X for Investments," "FN 450 vs. FN 357," etc.</p>
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100">
+          <tr>
+            <th class="text-left px-2 py-2 w-64">Option</th>
+            <th class="text-center px-2 py-2">Teaching<br/>quality</th>
+            <th class="text-center px-2 py-2">Content<br/>value</th>
+            <th class="text-center px-2 py-2">Career<br/>relevance</th>
+            <th class="text-center px-2 py-2">Mentor /<br/>network</th>
+            <th class="text-center px-2 py-2">Schedule<br/>fit</th>
+            <th class="text-center px-2 py-2">Total</th>
+            <th class="text-left px-2 py-2 min-w-[200px]">Notes</th>
+            <th class="w-8"></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.length === 0 ? `<tr><td colspan="9" class="text-center text-slate-400 italic py-6">No options yet — click "+ Add option" to compare.</td></tr>` :
+            rows.map((r, i) => {
+              const tot = ["teaching","content","career","mentor","schedule"].reduce((a,k) => a + (Number(r.scores[k])||0), 0);
+              const totCls = tot >= 20 ? "bg-emerald-100 text-emerald-900" : tot >= 12 ? "bg-yellow-100 text-yellow-900" : "bg-red-100 text-red-900";
+              return `<tr class="border-b align-middle">
+                <td class="px-2 py-1"><input type="text" value="${(r.label||"").replace(/"/g,'&quot;')}" class="w-full border rounded px-2 py-1 text-sm bg-yellow-50" oninput="state.decisionMatrix[${i}].label=this.value; saveState()" /></td>
+                ${["teaching","content","career","mentor","schedule"].map(k =>
+                  `<td class="px-2 py-1 text-center"><select class="border rounded px-1 py-1 text-sm bg-yellow-50" onchange="state.decisionMatrix[${i}].scores['${k}']=Number(this.value); render()">
+                    <option value="">—</option>
+                    ${[1,2,3,4,5].map(n => `<option value="${n}" ${r.scores[k]===n?'selected':''}>${n}</option>`).join("")}
+                  </select></td>`).join("")}
+                <td class="px-2 py-1 text-center font-bold ${totCls}">${tot || "—"}</td>
+                <td class="px-2 py-1"><input type="text" value="${(r.notes||"").replace(/"/g,'&quot;')}" class="w-full border rounded px-2 py-1 text-sm bg-yellow-50" oninput="state.decisionMatrix[${i}].notes=this.value; saveState()" /></td>
+                <td class="px-2 py-1 text-center"><button class="text-red-500 hover:text-red-700 font-bold" onclick="removeDecisionRow(${i})">×</button></td>
+              </tr>`;
+            }).join("")}
+        </tbody>
+      </table>
+      </div>
+    </section>
+  `;
+}
+function addDecisionRow() { state.decisionMatrix = state.decisionMatrix || []; state.decisionMatrix.push({ label:"", scores:{teaching:0,content:0,career:0,mentor:0,schedule:0}, notes:"" }); saveState(); render(); }
+function removeDecisionRow(i) { state.decisionMatrix.splice(i,1); saveState(); render(); }
+
+// ---- OPEN QUESTIONS ----
+function renderQuestions() {
+  return `
+    <section class="bg-white rounded-lg border p-4 mb-6">
+      <h2 class="text-lg font-bold mb-3">Open Questions</h2>
+      <p class="text-xs text-slate-600 mb-3">Research items from the brief. Status: open / in-progress / resolved. Put answers in "Findings."</p>
+      <ul class="divide-y">
+        ${DATA.openQuestions.map((q, i) => {
+          const qs = state.questions[q.id] || {};
+          const statusCls = qs.status === "resolved" ? "bg-emerald-100 text-emerald-900" : qs.status === "inprogress" ? "bg-yellow-100 text-yellow-900" : "bg-slate-100 text-slate-700";
+          return `<li class="py-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1">
+                <div class="font-medium text-sm">${i+1}. ${q.text}</div>
+                <div class="text-xs text-slate-500">Who to ask: ${q.who}</div>
+              </div>
+              <select class="text-xs rounded px-2 py-1 ${statusCls}" onchange="state.questions['${q.id}']={...(state.questions['${q.id}']||{}), status:this.value}; saveState(); render()">
+                <option value="open" ${qs.status==='open'||!qs.status?'selected':''}>Open</option>
+                <option value="inprogress" ${qs.status==='inprogress'?'selected':''}>In progress</option>
+                <option value="resolved" ${qs.status==='resolved'?'selected':''}>Resolved</option>
+              </select>
+            </div>
+            <textarea rows="2" class="text-xs border rounded px-2 py-1 w-full mt-2 bg-yellow-50" placeholder="Findings / answer / link…" onchange="state.questions['${q.id}']={...(state.questions['${q.id}']||{}), findings:this.value}; saveState()">${(qs.findings||"").replace(/</g,"&lt;")}</textarea>
+          </li>`;
+        }).join("")}
+      </ul>
+    </section>
+  `;
+}
+
+// ---- MAIN RENDER ----
+function render() {
+  const root = document.getElementById("main");
+  let html = "";
+  switch (currentTab) {
+    case "dashboard": html = renderDashboard(); break;
+    case "core": html = renderCourseTable("Business Core (required for all Lacy majors)", DATA.businessCore, "core"); break;
+    case "required": html = renderCourseTable("Finance Required", DATA.financeRequired, "required"); break;
+    case "electives": html = renderElectives(); break;
+    case "univcore":
+      html = renderCourseTable("University Core (Gen-Eds + Honors)",
+        DATA.universityCore.map(r => ({ ...r, year:"—", prereqs:"—", professors:r.area })), "univ");
+      break;
+    case "faculty": html = renderFaculty(); break;
+    case "experiential": html = renderExperiential(); break;
+    case "planner": html = renderPlanner(); break;
+    case "decision": html = renderDecision(); break;
+    case "questions": html = renderQuestions(); break;
+  }
+  root.innerHTML = html;
+}
+
+// boot
+showTab("dashboard");
+document.getElementById("last-saved").textContent = localStorage.getItem(STORAGE_KEY) ? "already saved" : "not yet";
+</script>
+</body>
+</html>

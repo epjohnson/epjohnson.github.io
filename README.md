@@ -1,4 +1,3 @@
-# epjohnson.github.io
 # epjohnson.com
 
 A small, hand-coded personal site. The homepage is styled like a 1984 Macintosh System 1 desktop. Projects live under `/projects/`, currently just the Butler Finance research and planner.
