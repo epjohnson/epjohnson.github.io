@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Angler's Journal — Fly Fishing Learning App</title>
+<meta name="description" content="A fly fishing learning app: fly identification, hatch charts, river guides, casting techniques, and species reference. Built by Eric Johnson." />
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #F4EFE4;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    color: #282420;
+  }
+  /* Loading state shown until React mounts. Uses the app's color palette
+     (cream + olive + gold) so the transition is seamless. */
+  #root.loading {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+  }
+  #root.loading .loading-card {
+    border: 2px solid #2F3D20;
+    border-bottom-width: 4px;
+    background: #FDFAF5;
+    padding: 28px 36px;
+    max-width: 380px;
+  }
+  #root.loading h1 {
+    color: #2F3D20;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 6px 0;
+  }
+  #root.loading .subtitle {
+    color: #A07830;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  #root.loading .dots {
+    color: #6B7A58;
+    font-size: 14px;
+    font-family: 'Arial', sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  #root.loading .dots::after {
+    content: '';
+    animation: dots 1.4s steps(4, end) infinite;
+  }
+  @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} 100%{content:''} }
+</style>
+</head>
+<body>
+<div id="root" class="loading">
+  <div class="loading-card">
+    <h1>The Angler's Journal</h1>
+    <div class="subtitle">Fly Fishing Learning App</div>
+    <div class="dots">Loading</div>
+  </div>
+</div>
+<script>
+  // Strip the loading class once React takes over so the styles don't conflict.
+  // React's createRoot replaces the inner content; this just cleans up the class.
+  var observer = new MutationObserver(function() {
+    var r = document.getElementById('root');
+    if (r && !r.querySelector('.loading-card')) {
+      r.classList.remove('loading');
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.getElementById('root'), { childList: true, subtree: true });
+</script>
+<script src="bundle.js"></script>
+</body>
+</html>
