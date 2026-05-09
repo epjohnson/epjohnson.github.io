@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Georgetown SFS — International Economics Planner</title>
+<style>
+:root {
+  --gu-blue: #041E42;
+  --gu-gray: #63666A;
+  --gu-light: #F4F4F4;
+  --gu-accent: #1B3A5C;
+  --gu-gold: #BFA14A;
+  --success: #2E7D32;
+  --warning: #E65100;
+  --danger: #C62828;
+  --transfer: #1565C0;
+  --ap: #7B1FA2;
+  --radius: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#fff;color:#222;line-height:1.5}
+header{background:var(--gu-blue);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+header h1{font-size:1.3rem;font-weight:700;letter-spacing:.5px}
+header .subtitle{font-size:.85rem;opacity:.8;margin-left:auto}
+nav{background:var(--gu-accent);display:flex;flex-wrap:wrap;gap:0;border-bottom:3px solid var(--gu-gold)}
+nav button{background:none;border:none;color:rgba(255,255,255,.7);padding:12px 20px;font-size:.85rem;cursor:pointer;transition:.2s;font-weight:500;border-bottom:3px solid transparent;margin-bottom:-3px;white-space:nowrap}
+nav button:hover{color:#fff;background:rgba(255,255,255,.08)}
+nav button.active{color:#fff;border-bottom-color:var(--gu-gold);background:rgba(255,255,255,.05)}
+.tab-content{display:none;padding:24px;max-width:1200px;margin:0 auto}
+.tab-content.active{display:block}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card h3{color:var(--gu-blue);margin-bottom:8px;font-size:1.05rem}
+.card h4{color:var(--gu-accent);margin:12px 0 6px;font-size:.95rem}
+.grid{display:grid;gap:16px}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.75rem;font-weight:600;margin:2px}
+.badge-done{background:#E8F5E9;color:var(--success)}
+.badge-needed{background:#FFF3E0;color:var(--warning)}
+.badge-transfer{background:#E3F2FD;color:var(--transfer)}
+.badge-ap{background:#F3E5F5;color:var(--ap)}
+.badge-inprogress{background:#FFF9C4;color:#F57F17}
+.badge-rec{background:#E8F5E9;color:var(--success)}
+.badge-avoid{background:#FFEBEE;color:var(--danger)}
+.badge-info{background:#E3F2FD;color:var(--transfer)}
+.badge-priority{background:#FFF3E0;color:var(--warning)}
+.toggle-container{display:flex;align-items:center;gap:10px;padding:12px 20px;background:#F5F5F5;border-radius:var(--radius);margin-bottom:20px;flex-wrap:wrap}
+.toggle-switch{position:relative;width:52px;height:28px;cursor:pointer}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:28px;transition:.3s}
+.toggle-slider:before{content:'';position:absolute;height:22px;width:22px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle-switch input:checked+.toggle-slider{background:var(--ap)}
+.toggle-switch input:checked+.toggle-slider:before{transform:translateX(24px)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
+.stat-box{text-align:center;padding:16px;background:var(--gu-light);border-radius:var(--radius)}
+.stat-box .num{font-size:1.8rem;font-weight:700;color:var(--gu-blue)}
+.stat-box .label{font-size:.75rem;color:var(--gu-gray);margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{background:var(--gu-blue);color:#fff;padding:10px 12px;text-align:left;font-weight:600;position:sticky;top:0}
+td{padding:8px 12px;border-bottom:1px solid #eee}
+tr:hover td{background:#f8f9ff}
+.search-box{width:100%;padding:10px 16px;border:2px solid #ddd;border-radius:var(--radius);font-size:.95rem;margin-bottom:16px;transition:.2s}
+.search-box:focus{border-color:var(--gu-blue);outline:none;box-shadow:0 0 0 3px rgba(4,30,66,.1)}
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;font-size:.8rem;transition:.2s}
+.filter-btn:hover{border-color:var(--gu-blue)}
+.filter-btn.active{background:var(--gu-blue);color:#fff;border-color:var(--gu-blue)}
+.rating{display:inline-flex;align-items:center;gap:4px}
+.rating .stars{color:var(--gu-gold);font-size:1rem}
+.rating .score{font-weight:700;color:var(--gu-blue)}
+.timeline{position:relative;padding-left:30px}
+.timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:3px;background:var(--gu-blue)}
+.timeline-item{position:relative;margin-bottom:24px;padding-left:20px}
+.timeline-item::before{content:'';position:absolute;left:-22px;top:6px;width:14px;height:14px;background:var(--gu-gold);border:3px solid var(--gu-blue);border-radius:50%}
+.timeline-item h4{color:var(--gu-blue);margin-bottom:4px}
+.semester-plan{border:2px solid var(--gu-blue);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+.semester-plan .sem-header{background:var(--gu-blue);color:#fff;padding:12px 16px;font-weight:700}
+.semester-plan .sem-body{padding:16px}
+.course-slot{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f8f9ff;border-radius:6px;margin-bottom:8px;border-left:4px solid var(--gu-blue)}
+.course-slot.elective{border-left-color:var(--gu-gold)}
+.course-slot.core{border-left-color:var(--success)}
+.course-slot .slot-title{font-weight:600;font-size:.9rem}
+.course-slot .slot-detail{font-size:.8rem;color:var(--gu-gray)}
+.progress-bar{height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden;margin:8px 0}
+.progress-bar .fill{height:100%;border-radius:4px;transition:.5s}
+.section-title{font-size:1.2rem;color:var(--gu-blue);font-weight:700;margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--gu-gold)}
+.club-card{border-left:4px solid var(--gu-gold)}
+.club-card .priority{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tip-box{background:#FFF8E1;border:1px solid #FFE082;border-radius:var(--radius);padding:16px;margin:12px 0}
+.tip-box.blue{background:#E3F2FD;border-color:#90CAF9}
+.req-group{margin-bottom:20px}
+.req-group h4{color:var(--gu-accent);padding:8px 0;border-bottom:1px solid #eee;margin-bottom:8px}
+.req-item{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:.9rem}
+.req-item .check{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0}
+.req-item .check.done{background:var(--success);color:#fff}
+.req-item .check.pending{background:#eee;color:#999;border:2px solid #ccc}
+.req-item .check.transfer{background:var(--transfer);color:#fff}
+.req-item .check.ap-credit{background:var(--ap);color:#fff}
+.credits-summary{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0}
+.credits-summary .cs-item{display:flex;align-items:center;gap:6px;font-size:.85rem}
+.credits-summary .cs-dot{width:12px;height:12px;border-radius:50%}
+@media(max-width:768px){
+  nav{overflow-x:auto}
+  nav button{padding:10px 14px;font-size:.78rem}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  header h1{font-size:1.1rem}
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Georgetown SFS — International Economics Planner</h1>
+    <div style="font-size:.8rem;opacity:.7;margin-top:2px">Walsh School of Foreign Service · BSFS Class of 2028</div>
+  </div>
+  <span class="subtitle">Foreign Service Officer (Economics) Track</span>
+</header>
+<nav id="mainNav">
+  <button class="active" data-tab="dashboard">Dashboard</button>
+  <button data-tab="requirements">Degree Requirements</button>
+  <button data-tab="courses">Course Database</button>
+  <button data-tab="professors">Professor Ratings</button>
+  <button data-tab="planner">Semester Planner</button>
+  <button data-tab="clubs">Clubs & Activities</button>
+  <button data-tab="fso">FSO Career Path</button>
+  <button data-tab="research">Further Research</button>
+</nav>
+
+<!-- ========== DASHBOARD ========== -->
+<div id="dashboard" class="tab-content active">
+  <div class="toggle-container">
+    <strong>AP Credit Transfer Mode:</strong>
+    <label class="toggle-switch">
+      <input type="checkbox" id="apToggle" checked>
+      <span class="toggle-slider"></span>
+    </label>
+    <span id="apToggleLabel">AP Credits Included (79 hrs)</span>
+    <span style="font-size:.8rem;color:var(--gu-gray);margin-left:8px">Toggle to plan with or without AP credits transferring</span>
+  </div>
+
+  <div class="stat-grid" id="dashStats">
+    <div class="stat-box"><div class="num" id="statCreditsEarned">175</div><div class="label">Credits Earned (UO + AP)</div></div>
+    <div class="stat-box"><div class="num" id="statMaxTransfer">60</div><div class="label">Max Transfer to GU</div></div>
+    <div class="stat-box"><div class="num" id="statGPA">4.10</div><div class="label">UO GPA</div></div>
+    <div class="stat-box"><div class="num" id="statNeeded">60</div><div class="label">GU Credits Needed</div></div>
+    <div class="stat-box"><div class="num">4</div><div class="label">Semesters at GU</div></div>
+    <div class="stat-box"><div class="num">~15</div><div class="label">Credits / Semester</div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Strengths Coming In</h3>
+      <p style="margin-bottom:8px">Your UO coursework positions you exceptionally well for Georgetown IECO:</p>
+      <div style="margin:8px 0"><span class="badge badge-done">Economics Core</span> Intermediate Micro, Macro, Econometrics I & II, Behavioral Econ, Political Economy</div>
+      <div style="margin:8px 0"><span class="badge badge-done">Chinese Language</span> 4th-year Chinese + Literature, Business, Social Issues, Pop Culture courses</div>
+      <div style="margin:8px 0"><span class="badge badge-done">Quantitative</span> Multivariable Calc, Linear Algebra I & II, Statistical Models</div>
+      <div style="margin:8px 0"><span class="badge badge-done">Area Studies</span> Chinese Economy, Chinese Religions, International Political Economy</div>
+    </div>
+    <div class="card">
+      <h3>Key Gaps to Fill at Georgetown</h3>
+      <div style="margin:8px 0"><span class="badge badge-needed">Required</span> ECON 2543 International Trade</div>
+      <div style="margin:8px 0"><span class="badge badge-needed">Required</span> ECON 2544 International Finance</div>
+      <div style="margin:8px 0"><span class="badge badge-needed">Required</span> GOVT 060 International Relations</div>
+      <div style="margin:8px 0"><span class="badge badge-needed">Required</span> GOVT 040 Comparative Political Systems</div>
+      <div style="margin:8px 0"><span class="badge badge-needed">Required</span> 3 History courses (early + late)</div>
+      <div style="margin:8px 0"><span class="badge badge-needed">Required</span> 2 Theology courses</div>
+      <div style="margin:8px 0"><span class="badge badge-needed">Required</span> 2 Philosophy courses</div>
+      <div style="margin:8px 0"><span class="badge badge-needed">Required</span> 1-2 Applied ECON electives (4000-level)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>UO Courses Completed & In Progress</h3>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Term</th><th>Course</th><th>Title</th><th>Grade</th><th>Credits</th><th>Likely GU Equivalent</th></tr></thead>
+      <tbody>
+        <tr><td>Fall 2024</td><td>CH 111</td><td>Intro Chem Principles</td><td>A+</td><td>4</td><td>Science elective</td></tr>
+        <tr><td>Fall 2024</td><td>HC 101H</td><td>Topics: Symmetry</td><td>A</td><td>4</td><td>Gen ed elective</td></tr>
+        <tr><td>Fall 2024</td><td>HC 221H</td><td>Topics: Epic & Leadership</td><td>A</td><td>4</td><td>HALC / Humanities</td></tr>
+        <tr><td>Fall 2024</td><td>MATH 281</td><td>Several-Variable Calc I</td><td>A-</td><td>4</td><td>MATH prerequisite ✓</td></tr>
+        <tr><td>Win 2025</td><td>CHN 306</td><td>Hist of Chinese Lit</td><td>A+</td><td>4</td><td>Language / HALC</td></tr>
+        <tr><td>Win 2025</td><td>CHN 445</td><td>Topics: Social Issues</td><td>A</td><td>4</td><td>Language adv. elective</td></tr>
+        <tr><td>Win 2025</td><td>EC 311</td><td>Intermediate Micro Theory</td><td>A+</td><td>4</td><td>→ ECON 2101 ✓</td></tr>
+        <tr><td>Win 2025</td><td>HC 241H</td><td>Topics: Drug Neuro Policy</td><td>A</td><td>4</td><td>Science / Policy elective</td></tr>
+        <tr><td>Win 2025</td><td>PSY 401</td><td>Res Brain and Memory</td><td>P*</td><td>2</td><td>Research credit</td></tr>
+        <tr><td>Spr 2025</td><td>CHN 445</td><td>Topics: Business</td><td>A+</td><td>4</td><td>Language adv. elective</td></tr>
+        <tr><td>Spr 2025</td><td>EC 313</td><td>Intermediate Macro Theory</td><td>A+</td><td>4</td><td>→ ECON 2102 ✓</td></tr>
+        <tr><td>Spr 2025</td><td>EC 320</td><td>Intro to Econometrics</td><td>A+</td><td>4</td><td>→ ECON 2120 ✓</td></tr>
+        <tr><td>Spr 2025</td><td>REL 302</td><td>Chinese Religions</td><td>A</td><td>4</td><td>THEO / Elective</td></tr>
+        <tr><td>Sum 2025</td><td>CH 221</td><td>General Chemistry I</td><td>A</td><td>4</td><td>Science</td></tr>
+        <tr><td>Sum 2025</td><td>CH 222</td><td>General Chemistry II</td><td>A</td><td>4</td><td>Science</td></tr>
+        <tr><td>Sum 2025</td><td>CH 223</td><td>General Chemistry III</td><td>A-</td><td>4</td><td>Science</td></tr>
+        <tr><td>Fall 2025</td><td>ASIA 480</td><td>Chinese Economy</td><td>A</td><td>4</td><td>Applied ECON / Area Studies</td></tr>
+        <tr><td>Fall 2025</td><td>CHN 413</td><td>4th Year Chinese</td><td>A+</td><td>4</td><td>Language proficiency ✓</td></tr>
+        <tr><td>Fall 2025</td><td>EC 421</td><td>Intro Econometrics II</td><td>A+</td><td>4</td><td>Applied ECON elective</td></tr>
+        <tr><td>Fall 2025</td><td>EC 428</td><td>Behavioral & Exp Econ</td><td>A</td><td>4</td><td>Applied ECON elective</td></tr>
+        <tr><td>Win 2026</td><td>CHN 152</td><td>Intro Chinese Pop Culture</td><td>A+</td><td>4</td><td>Language / Culture</td></tr>
+        <tr><td>Win 2026</td><td>MATH 341</td><td>Elem Linear Algebra</td><td>A</td><td>4</td><td>Math elective ✓</td></tr>
+        <tr><td>Win 2026</td><td>MATH 343</td><td>Statistical Models & Methods</td><td>A+</td><td>4</td><td>→ ECON 2110 ✓</td></tr>
+        <tr><td>Win 2026</td><td>PS 340</td><td>Intl Political Economy</td><td>A</td><td>4</td><td>GOVT / Elective</td></tr>
+        <tr style="background:#FFF9C4"><td>Spr 2026*</td><td>CHN 307</td><td>Hist of Chinese Lit</td><td>IP</td><td>4</td><td>Language / HALC</td></tr>
+        <tr style="background:#FFF9C4"><td>Spr 2026*</td><td>EC 448</td><td>Political Economy</td><td>IP</td><td>4</td><td>Applied ECON elective</td></tr>
+        <tr style="background:#FFF9C4"><td>Spr 2026*</td><td>EC 451</td><td>Issues in Labor Econ</td><td>IP</td><td>4</td><td>Applied ECON elective</td></tr>
+        <tr style="background:#FFF9C4"><td>Spr 2026*</td><td>MATH 342</td><td>Elem Linear Algebra II</td><td>IP</td><td>4</td><td>Math elective</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:.8rem;color:var(--gu-gray);margin-top:8px">* In Progress — Spring 2026. IP = In Progress. Georgetown accepts max 60 transfer credits.</p>
+  </div>
+
+  <div class="tip-box">
+    <strong>Important Note on Transfer Credits:</strong> Georgetown SFS accepts a maximum of 60 transfer credits. With 175 earned hours (96 from UO + 79 from AP), many credits will exceed this cap. The transfer evaluation office will determine which specific courses transfer and satisfy which requirements. Use the AP Credit toggle above to plan for both scenarios. We strongly recommend contacting the SFS Dean's Office for a preliminary credit evaluation before arrival.
+  </div>
+</div>
+
+<!-- ========== DEGREE REQUIREMENTS ========== -->
+<div id="requirements" class="tab-content">
+  <div class="toggle-container">
+    <strong>AP Credit Transfer Mode:</strong>
+    <label class="toggle-switch">
+      <input type="checkbox" class="apToggleSync" checked>
+      <span class="toggle-slider"></span>
+    </label>
+    <span class="apToggleLabelSync">AP Credits Included</span>
+  </div>
+
+  <div class="credits-summary">
+    <div class="cs-item"><div class="cs-dot" style="background:var(--success)"></div> Likely satisfied by UO</div>
+    <div class="cs-item"><div class="cs-dot" style="background:var(--ap)"></div> May be satisfied by AP</div>
+    <div class="cs-item"><div class="cs-dot" style="background:var(--transfer)"></div> Pending evaluation</div>
+    <div class="cs-item"><div class="cs-dot" style="background:#ccc"></div> Must take at Georgetown</div>
+  </div>
+
+  <h2 class="section-title">IECO Major Requirements</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Prerequisites</h3>
+      <div class="req-group">
+        <div class="req-item"><div class="check done">✓</div><span>Calculus I & II — <em>MATH 281 (Multivariable) exceeds this</em></span></div>
+        <div class="req-item"><div class="check done">✓</div><span>ECON 1001 Principles of Micro — <em>EC 311 exceeds this</em></span></div>
+        <div class="req-item"><div class="check done">✓</div><span>ECON 1002 Principles of Macro — <em>EC 313 exceeds this</em></span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Co-Requisites (SFS Core + IECO)</h3>
+      <div class="req-group">
+        <div class="req-item"><div class="check pending">—</div><span><strong>ECON 2543 International Trade</strong> — Must take at GU</span></div>
+        <div class="req-item"><div class="check pending">—</div><span><strong>ECON 2544 International Finance</strong> — Must take at GU</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Core Major Courses (4 required)</h3>
+    <div class="req-group">
+      <div class="req-item"><div class="check transfer">≈</div><span>ECON 2101 Intermediate Micro — <em>Likely satisfied by UO EC 311 (A+)</em></span></div>
+      <div class="req-item"><div class="check transfer">≈</div><span>ECON 2102 Intermediate Macro — <em>Likely satisfied by UO EC 313 (A+)</em></span></div>
+      <div class="req-item"><div class="check transfer">≈</div><span>ECON 2110 Economic Statistics — <em>Likely satisfied by UO MATH 343 (A+)</em></span></div>
+      <div class="req-item"><div class="check transfer">≈</div><span>ECON 2120 Intro Econometrics — <em>Likely satisfied by UO EC 320 (A+)</em></span></div>
+    </div>
+    <div class="tip-box blue">
+      <strong>Key caveat:</strong> Georgetown requires at least half of major courses to be completed in residence. If all 4 core courses transfer, you may need to take additional upper-level ECON courses at Georgetown to meet the residency requirement for the major. Confirm with your SFS advisor.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Applied Courses (3 required, at least 1 must be 4000-level ECON at GU)</h3>
+    <div class="req-group">
+      <div class="req-item"><div class="check transfer">≈</div><span>Applied #1 — <em>UO EC 421 Econometrics II (A+) or EC 428 Behavioral Econ (A) may transfer</em></span></div>
+      <div class="req-item"><div class="check transfer">≈</div><span>Applied #2 — <em>UO EC 448 Political Economy (IP) or EC 451 Labor Econ (IP) may transfer</em></span></div>
+      <div class="req-item"><div class="check pending">—</div><span><strong>Applied #3</strong> — Must take at least 1 at GU (4000-level with IECO attribute)</span></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">SFS Core Curriculum</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Government (2 courses)</h3>
+      <div class="req-item"><div class="check pending">—</div><span><strong>GOVT 060 International Relations</strong> — Must take at GU</span></div>
+      <div class="req-item"><div class="check pending">—</div><span><strong>GOVT 040 Comparative Political Systems</strong> — Must take at GU</span></div>
+    </div>
+    <div class="card">
+      <h3>History (3 courses)</h3>
+      <div class="req-item"><div class="check pending">—</div><span>History Survey — Must take at GU</span></div>
+      <div class="req-item"><div class="check pending">—</div><span>Regional History (Early attribute) — Must take at GU</span></div>
+      <div class="req-item"><div class="check pending">—</div><span>Regional History (Late attribute) — Must take at GU</span></div>
+      <p class="ap-note hidden" style="font-size:.82rem;color:var(--ap);margin-top:6px">* AP History credits (US History, World History, European History) may satisfy 1-2 of these requirements</p>
+    </div>
+    <div class="card">
+      <h3>Economics (3 courses — SFS Core)</h3>
+      <div class="req-item"><div class="check done">✓</div><span>ECON 1001 Principles of Micro — <em>UO EC 311</em></span></div>
+      <div class="req-item"><div class="check done">✓</div><span>ECON 1002 Principles of Macro — <em>UO EC 313</em></span></div>
+      <div class="req-item"><div class="check pending">—</div><span><strong>ECON 2543 International Trade</strong> + <strong>ECON 2544 International Finance</strong> (IECO co-reqs satisfy this)</span></div>
+    </div>
+    <div class="card">
+      <h3>Other SFS Core</h3>
+      <div class="req-item"><div class="check pending">—</div><span>INAF 100 Proseminar — <em>May be waived for transfers; confirm with SFS</em></span></div>
+      <div class="req-item"><div class="check pending">—</div><span>INAF 008 Map of the Modern World (1 cr)</span></div>
+      <div class="req-item"><div class="check transfer">≈</div><span>SFS Science (2 courses) — <em>UO Chemistry sequence may transfer</em></span></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">University Core Requirements</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Theology (2 courses)</h3>
+      <div class="req-item"><div class="check transfer">≈</div><span>THEO 1000/1100 — <em>UO REL 302 Chinese Religions may partially satisfy</em></span></div>
+      <div class="req-item"><div class="check pending">—</div><span>Intermediate THEO (2000-3999) — Must take at GU</span></div>
+    </div>
+    <div class="card">
+      <h3>Philosophy (2 courses)</h3>
+      <div class="req-item"><div class="check pending">—</div><span>PHIL 1900 Social & Political Philosophy — Must take at GU</span></div>
+      <div class="req-item"><div class="check pending">—</div><span>PHIL 2000-level elective — Must take at GU</span></div>
+    </div>
+    <div class="card">
+      <h3>Writing (2 courses)</h3>
+      <div class="req-item ap-sensitive"><div class="check pending">—</div><span>WRIT 1150 Writing & Culture — <em>Must take at GU unless waived</em></span></div>
+      <div class="req-item"><div class="check pending">—</div><span>Integrated Writing (within major) — Must take at GU</span></div>
+      <p class="ap-note hidden" style="font-size:.82rem;color:var(--ap);margin-top:6px">* AP English Lang/Lit may waive WRIT 1150</p>
+    </div>
+    <div class="card">
+      <h3>Other University Requirements</h3>
+      <div class="req-item"><div class="check transfer">≈</div><span>HALC — <em>UO HC 221H Epic & Leadership may satisfy</em></span></div>
+      <div class="req-item"><div class="check done">✓</div><span>Foreign Language Proficiency — <em>4th-year Chinese exceeds requirement</em></span></div>
+      <div class="req-item"><div class="check pending">—</div><span>Pathways to Social Justice (1 seminar + 2 overlays)</span></div>
+      <div class="req-item ap-sensitive"><div class="check pending">—</div><span>Quantitative Reasoning — <em>Likely satisfied by math/econ courses</em></span></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h3>Degree Progress Summary</h3>
+    <div style="margin:12px 0">
+      <div style="display:flex;justify-content:space-between;font-size:.85rem"><span>IECO Major Requirements</span><span id="iecoProgress">~6 of 10 likely satisfied</span></div>
+      <div class="progress-bar"><div class="fill" style="width:60%;background:var(--gu-blue)"></div></div>
+    </div>
+    <div style="margin:12px 0">
+      <div style="display:flex;justify-content:space-between;font-size:.85rem"><span>SFS Core Curriculum</span><span id="sfsProgress">~4 of 12 likely satisfied</span></div>
+      <div class="progress-bar"><div class="fill" style="width:33%;background:var(--gu-accent)"></div></div>
+    </div>
+    <div style="margin:12px 0">
+      <div style="display:flex;justify-content:space-between;font-size:.85rem"><span>University Core</span><span id="uniProgress">~3 of 10 likely satisfied</span></div>
+      <div class="progress-bar"><div class="fill" style="width:30%;background:var(--gu-gold)"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== COURSE DATABASE ========== -->
+<div id="courses" class="tab-content">
+  <input type="text" class="search-box" id="courseSearch" placeholder="Search courses by name, number, or description...">
+  <div class="filter-row" id="courseFilters">
+    <button class="filter-btn active" data-filter="all">All Courses</button>
+    <button class="filter-btn" data-filter="ieco-required">IECO Required</button>
+    <button class="filter-btn" data-filter="ieco-applied">Applied Electives</button>
+    <button class="filter-btn" data-filter="sfs-core">SFS Core</button>
+    <button class="filter-btn" data-filter="university">University Core</button>
+    <button class="filter-btn" data-filter="recommended">Recommended</button>
+  </div>
+  <div style="overflow-x:auto">
+  <table id="courseTable">
+    <thead><tr><th>Course</th><th>Title</th><th>Category</th><th>Status</th><th>Best Professor</th><th>Notes</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ========== PROFESSORS ========== -->
+<div id="professors" class="tab-content">
+  <input type="text" class="search-box" id="profSearch" placeholder="Search professors by name or course...">
+  <div class="grid grid-2" id="profGrid"></div>
+</div>
+
+<!-- ========== SEMESTER PLANNER ========== -->
+<div id="planner" class="tab-content">
+  <div class="toggle-container">
+    <strong>AP Credit Transfer Mode:</strong>
+    <label class="toggle-switch">
+      <input type="checkbox" class="apToggleSync" checked>
+      <span class="toggle-slider"></span>
+    </label>
+    <span class="apToggleLabelSync">AP Credits Included</span>
+  </div>
+
+  <div class="tip-box">
+    <strong>Planning Notes:</strong> This plan assumes maximum transfer credit acceptance. Actual course availability varies by semester — check Georgetown's Schedule of Classes before registration. Aim for 15 credits/semester (5 courses). Courses marked with ★ are highest priority for your FSO goals.
+  </div>
+
+  <div id="semesterPlans"></div>
+</div>
+
+<!-- ========== CLUBS ========== -->
+<div id="clubs" class="tab-content">
+  <h2 class="section-title">Priority Organizations for FSO (Economics) Track</h2>
+  <div class="grid grid-2" id="clubGrid"></div>
+</div>
+
+<!-- ========== FSO CAREER PATH ========== -->
+<div id="fso" class="tab-content">
+  <div class="card">
+    <h3>Foreign Service Officer — Economics Cone Overview</h3>
+    <p>Economic Officers analyze and report on economic trends, negotiate trade agreements, advance U.S. commercial interests abroad, and work on sanctions, finance, development, and energy policy. Your daughter's combination of International Economics training, advanced Chinese language skills, and quantitative background makes her an exceptionally strong candidate.</p>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="num" style="font-size:1.3rem">FSOT</div><div class="label">Step 1: Written Test</div></div>
+      <div class="stat-box"><div class="num" style="font-size:1.3rem">QEP</div><div class="label">Step 2: File Review</div></div>
+      <div class="stat-box"><div class="num" style="font-size:1.3rem">FSOA</div><div class="label">Step 3: Oral Assessment</div></div>
+      <div class="stat-box"><div class="num" style="font-size:1.3rem">Clearances</div><div class="label">Step 4: Security + Medical</div></div>
+      <div class="stat-box"><div class="num" style="font-size:1.3rem">Register</div><div class="label">Step 5: Hiring List</div></div>
+      <div class="stat-box"><div class="num" style="font-size:1.3rem">A-100</div><div class="label">Step 6: Orientation</div></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Junior & Senior Year Timeline</h2>
+  <div class="timeline" id="fsoTimeline"></div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Fellowships — Top Priority Applications</h3>
+      <h4>Pickering Fellowship</h4>
+      <p>Provides ~$42,000/year for a 2-year master's, two State Department internships (DC + overseas), and a guaranteed FSO appointment. Apply fall of senior year. ~3% acceptance rate. <strong>2026 cycle postponed — monitor closely.</strong></p>
+      <h4>Rangel Fellowship</h4>
+      <p>Same financial package as Pickering, with emphasis on diversity. First summer is on Capitol Hill, second is at an overseas embassy. Also provides guaranteed FSO appointment. <strong>2026 cycle also postponed.</strong></p>
+      <div class="tip-box"><strong>Action:</strong> Sign up for email alerts at apply.pickeringfellowship.org and rangelprogram.org immediately. Apply to BOTH when cycles resume.</div>
+    </div>
+    <div class="card">
+      <h3>Internships to Pursue</h3>
+      <h4>State Department Student Internship Program (SIP)</h4>
+      <p>Paid, 10-week summer internship. Apply on USAJobs in early fall (deadline ~October, closes at 4,000 applications). Requires 3.2+ GPA and security clearance eligibility.</p>
+      <h4>Virtual Student Federal Service (VSFS)</h4>
+      <p>Remote e-internship, 10 hrs/week during academic year. Unpaid but low commitment. Apply on USAJobs in July.</p>
+      <h4>Pathways Internship Program</h4>
+      <p>Federal internship with potential for conversion to permanent employment. Positions posted on USAJobs year-round.</p>
+      <h4>Think Tank Alternatives</h4>
+      <p>CSIS, Brookings, Peterson Institute for International Economics, Carnegie Endowment — all in DC near Georgetown.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Chinese Language — Your Strategic Advantage</h3>
+    <p>Mandarin is classified as a "super-hard" critical needs language by the State Department. Candidates with Mandarin proficiency earn <strong>0.17 bonus points</strong> on their register score — often the difference between receiving an appointment or not. Only ILR Level 2 speaking ability is needed for full bonus points (vs. Level 3 for most languages).</p>
+    <p style="margin-top:8px"><strong>Recommendation:</strong> Continue Chinese at Georgetown to maintain and deepen proficiency. Consider a semester in Beijing (Tsinghua or Peking University) or Taipei through Georgetown's study abroad programs. After passing the FSOA, take the State Department's telephone language proficiency test.</p>
+  </div>
+
+  <div class="card">
+    <h3>FSOT Preparation</h3>
+    <p>The FSOT was restructured in October 2025. It now has three multiple-choice sections (no essay): <strong>Job Knowledge</strong> (US government/history, world geography, economics, math/stats), <strong>English Expression</strong> (grammar, writing, editing), and <strong>Logical Reasoning</strong>.</p>
+    <p style="margin-top:8px">The test is offered quarterly (Feb, May, Jul, Oct). She can take it starting junior year — there's no degree requirement, and retakes are allowed. Average successful candidates take it 2-3 times.</p>
+    <p style="margin-top:8px"><strong>Resources:</strong> Practice tests at careers.state.gov, Mometrix, and iPrep. Her Georgetown SFS coursework directly prepares her for the Job Knowledge section.</p>
+  </div>
+</div>
+
+<!-- ========== FURTHER RESEARCH ========== -->
+<div id="research" class="tab-content">
+  <h2 class="section-title">Recommended Further Research</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Before Arrival (Summer 2026)</h3>
+      <div class="req-item"><div class="check pending">1</div><span><strong>Request preliminary credit evaluation</strong> — Contact SFS Dean's Office with UO transcript to learn exactly which courses transfer and satisfy which GU requirements</span></div>
+      <div class="req-item"><div class="check pending">2</div><span><strong>AP credit transfer</strong> — Send AP score reports to Georgetown and confirm which specific AP exams satisfy which requirements</span></div>
+      <div class="req-item"><div class="check pending">3</div><span><strong>Chinese placement test</strong> — Confirm Chinese language placement level and whether language requirement is fully satisfied</span></div>
+      <div class="req-item"><div class="check pending">4</div><span><strong>Meet with IECO Field Chair</strong> — Discuss approved Applied course list and which UO econ courses count toward IECO applied requirements</span></div>
+      <div class="req-item"><div class="check pending">5</div><span><strong>Transfer student orientation</strong> — Attend all SFS transfer orientation events; these are critical for understanding the advising system</span></div>
+    </div>
+    <div class="card">
+      <h3>Academic Planning</h3>
+      <div class="req-item"><div class="check pending">6</div><span><strong>Senior thesis vs. additional course</strong> — Decide whether to pursue IECO honors thesis (IECO 4970/4980) — requires 3.67+ major GPA and 3.5+ cumulative. Given her 4.10, she's well-positioned</span></div>
+      <div class="req-item"><div class="check pending">7</div><span><strong>ISD Certificate in Diplomatic Studies</strong> — Investigate whether she can complete the 6-course certificate in 4 semesters as a transfer student</span></div>
+      <div class="req-item"><div class="check pending">8</div><span><strong>Study abroad feasibility</strong> — Can a transfer student study abroad? SFS encourages it, but 4-semester residency requirement may limit options. Explore summer programs in China as alternative</span></div>
+      <div class="req-item"><div class="check pending">9</div><span><strong>Course registration priority</strong> — Learn how Georgetown's registration system works for transfers — do juniors register early enough to get into popular courses?</span></div>
+    </div>
+    <div class="card">
+      <h3>Career Preparation</h3>
+      <div class="req-item"><div class="check pending">10</div><span><strong>Security clearance preparation</strong> — Start compiling SF-86 data now: 10 years of addresses, foreign contacts, travel history, employment. Chinese contacts and travel require careful documentation</span></div>
+      <div class="req-item"><div class="check pending">11</div><span><strong>Pickering/Rangel status</strong> — Monitor whether 2026-27 fellowship cycles resume. Sign up for email alerts at both program websites</span></div>
+      <div class="req-item"><div class="check pending">12</div><span><strong>USAJobs profile</strong> — Create a USAJobs.gov account and set up email alerts for State Department internships (SIP, Pathways, VSFS)</span></div>
+      <div class="req-item"><div class="check pending">13</div><span><strong>FSOT registration</strong> — Register for the Fall 2026 or early 2027 FSOT as a practice run</span></div>
+    </div>
+    <div class="card">
+      <h3>Campus Life & Networking</h3>
+      <div class="req-item"><div class="check pending">14</div><span><strong>Housing</strong> — Research Georgetown housing options for transfer students. On-campus housing may be limited; explore Burleith and Georgetown neighborhoods</span></div>
+      <div class="req-item"><div class="check pending">15</div><span><strong>Connect with current IECO students</strong> — Reach out through Georgetown admitted student groups, Reddit r/Georgetown, or the SFS student council</span></div>
+      <div class="req-item"><div class="check pending">16</div><span><strong>Carroll Round</strong> — If she has original economics research from UO, consider submitting to present at the Carroll Round conference (applications typically due in fall)</span></div>
+      <div class="req-item"><div class="check pending">17</div><span><strong>Pelosi Scholars Initiative</strong> — Research application timeline for this funded internship program for SFS students</span></div>
+      <div class="req-item"><div class="check pending">18</div><span><strong>Graduate school research</strong> — Begin researching Georgetown MSFS, Johns Hopkins SAIS, Tufts Fletcher, and GW Elliott School as potential Pickering/Rangel master's programs</span></div>
+    </div>
+  </div>
+</div>
+
+<footer style="background:var(--gu-blue);color:rgba(255,255,255,.6);text-align:center;padding:16px;font-size:.8rem;margin-top:40px">
+  Georgetown SFS International Economics Planner · Built for the Johnson Family · Last Updated: May 2026<br>
+  <span style="font-size:.7rem">Data sourced from Georgetown Bulletin, SFS website, RateMyProfessors, State Department careers.state.gov. Verify all information with Georgetown SFS advising.</span>
+</footer>
+
+<script>
+// ===== DATA =====
+const courses = [
+  // IECO Required
+  {id:'econ2543',code:'ECON 2543',title:'International Trade',category:'ieco-required',status:'Must take at GU',statusClass:'needed',bestProf:'Anna Mayda (4.1★) or Rodney Ludema',notes:'IECO co-requisite. Ludema was Chief Economist at State Dept — ideal for FSO track.',recommended:true},
+  {id:'econ2544',code:'ECON 2544',title:'International Finance',category:'ieco-required',status:'Must take at GU',statusClass:'needed',bestProf:'Robert Cumby',notes:'IECO co-requisite. Cumby has IMF + Treasury experience.',recommended:true},
+  {id:'econ2101',code:'ECON 2101',title:'Intermediate Microeconomics',category:'ieco-required',status:'Likely transferred (EC 311)',statusClass:'transfer',bestProf:'Alan Bester (3.6★) or Billy Jack (4.3★)',notes:'If not accepted as transfer, take with Bester or Jack.'},
+  {id:'econ2102',code:'ECON 2102',title:'Intermediate Macroeconomics',category:'ieco-required',status:'Likely transferred (EC 313)',statusClass:'transfer',bestProf:'David Burk (3.7★) — AVOID Huggett (2.9★)',notes:'Burk won 2026 CAC Faculty Award. Huggett has 32% "would take again."'},
+  {id:'econ2110',code:'ECON 2110',title:'Economic Statistics',category:'ieco-required',status:'Likely transferred (MATH 343)',statusClass:'transfer',bestProf:'David Burk (3.7★) — AVOID Bae (2.2★)',notes:'If needed, take with Burk. Bae has unclear lectures.'},
+  {id:'econ2120',code:'ECON 2120',title:'Introduction to Econometrics',category:'ieco-required',status:'Likely transferred (EC 320)',statusClass:'transfer',bestProf:'Alexandre Poirier',notes:'If needed, Poirier is a top researcher in econometrics. Published in Econometrica.'},
+
+  // Applied Electives
+  {id:'econ4022',code:'ECON 4022',title:'Causal Inference',category:'ieco-applied',status:'Recommended',statusClass:'rec',bestProf:'Alexandre Poirier',notes:'Builds on econometrics. Excellent for policy analysis and research skills.',recommended:true},
+  {id:'econ4059',code:'ECON 4059',title:'Game Theory',category:'ieco-applied',status:'Available',statusClass:'info',bestProf:'Roger Lagunoff (mixed)',notes:'Useful for negotiation/diplomacy theory. Rely on TAs and textbook.'},
+  {id:'econ4075',code:'ECON 4075',title:'Environmental Economics',category:'ieco-applied',status:'Available',statusClass:'info',bestProf:'Wes Austin + Adam Theising (4.7-5.0★)',notes:'"One of the best econ courses at Georgetown." Austin/Theising are EPA economists.'},
+  {id:'econ4480',code:'ECON 4480',title:'Political Economy & Public Policy',category:'ieco-applied',status:'Highly Recommended',statusClass:'rec',bestProf:'Juan Felipe Riano (4.7★)',notes:'100% would take again. Directly relevant to FSO Economics cone.',recommended:true},
+  {id:'econ4483',code:'ECON 4483',title:'Development Economics',category:'ieco-applied',status:'Recommended',statusClass:'rec',bestProf:'Billy Jack (4.3★) or Riano (4.7★)',notes:'Jack is former IMF economist. Critical for understanding developing economies.',recommended:true},
+  {id:'econ4495',code:'ECON 4495',title:'Data Analysis in Economics',category:'ieco-applied',status:'Available',statusClass:'info',bestProf:'TBD',notes:'Strong complement to econometrics background.'},
+  {id:'econ4464',code:'ECON 4464',title:'Advanced Macroeconomics',category:'ieco-applied',status:'Available',statusClass:'info',bestProf:'TBD',notes:'Deepens macro understanding for international finance work.'},
+  {id:'econ4061',code:'ECON 4061',title:'Industrial Organization',category:'ieco-applied',status:'Available',statusClass:'info',bestProf:'TBD',notes:'Useful for trade policy and competition analysis.'},
+  {id:'econ2681',code:'ECON 2681',title:'Labor Economics',category:'ieco-applied',status:'May transfer (EC 451)',statusClass:'transfer',bestProf:'TBD',notes:'UO EC 451 in progress — may satisfy this.'},
+  {id:'econ4453',code:'ECON 4453',title:'Decision-Making in Econ & Finance',category:'ieco-applied',status:'Available',statusClass:'info',bestProf:'TBD',notes:'Builds on behavioral economics background from UO EC 428.'},
+  {id:'ieco4970',code:'IECO 4970/4980',title:'Senior Honors Thesis',category:'ieco-applied',status:'Optional — for Honors',statusClass:'info',bestProf:'Faculty advisor',notes:'Required for honors designation. Needs 3.67+ major GPA and 3.5+ cumulative. 50-80 pages.',recommended:true},
+
+  // SFS Core
+  {id:'govt060',code:'GOVT 060',title:'International Relations',category:'sfs-core',status:'Must take at GU',statusClass:'needed',bestProf:'Anthony Arend (top-rated)',notes:'"Possibly the best professor in the school." Makes intl law accessible.',recommended:true},
+  {id:'govt040',code:'GOVT 040',title:'Comparative Political Systems',category:'sfs-core',status:'Must take at GU',statusClass:'needed',bestProf:'Charles King (rigorous) or Langenbacher (manageable)',notes:'King is intellectually challenging but transformative. Langenbacher is more predictable.'},
+  {id:'hist1',code:'HIST (Survey)',title:'History Survey Course',category:'sfs-core',status:'Must take at GU',statusClass:'needed',bestProf:'Check schedule',notes:'Choose a survey covering region relevant to your interests (East Asia recommended).'},
+  {id:'hist2',code:'HIST (Early)',title:'Regional History — Early',category:'sfs-core',status:'Must take at GU',statusClass:'needed',bestProf:'Check schedule',notes:'Must carry "early" attribute. Consider East Asian history.'},
+  {id:'hist3',code:'HIST (Late)',title:'Regional History — Late',category:'sfs-core',status:'Must take at GU',statusClass:'needed',bestProf:'Check schedule',notes:'Must carry "late" attribute. Modern Chinese history would be ideal.'},
+  {id:'inaf100',code:'INAF 100',title:'Proseminar',category:'sfs-core',status:'Check if waived for transfers',statusClass:'info',bestProf:'Various',notes:'First-year course. May be waived for transfer students — confirm with SFS.'},
+  {id:'inaf008',code:'INAF 008',title:'Map of the Modern World',category:'sfs-core',status:'Must take at GU',statusClass:'needed',bestProf:'Various',notes:'1-credit political/physical geography course. Low credit load.'},
+  {id:'sfsci1',code:'SFS Science 1',title:'SFS Science Course I',category:'sfs-core',status:'May transfer (Chemistry)',statusClass:'transfer',bestProf:'Various',notes:'UO Chemistry sequence may satisfy. SFS has specific science courses (INAF 1000-level).'},
+  {id:'sfsci2',code:'SFS Science 2',title:'SFS Science Course II',category:'sfs-core',status:'May transfer (Chemistry)',statusClass:'transfer',bestProf:'Various',notes:'Second science requirement. Check if UO chemistry transfers.'},
+
+  // University Core
+  {id:'theo1',code:'THEO 1000/1100',title:'Problem of God / Intro Biblical Lit',category:'university',status:'May partially transfer (REL 302)',statusClass:'transfer',bestProf:'Check schedule',notes:'UO REL 302 Chinese Religions may satisfy. Georgetown theology courses are unique to the Jesuit tradition.'},
+  {id:'theo2',code:'THEO 2000+',title:'Intermediate Theology',category:'university',status:'Must take at GU',statusClass:'needed',bestProf:'Check schedule',notes:'Any THEO 2000-3999 course. Consider one related to ethics or global issues.'},
+  {id:'phil1',code:'PHIL 1900',title:'Social & Political Philosophy',category:'university',status:'Must take at GU',statusClass:'needed',bestProf:'Check schedule',notes:'SFS-specific philosophy requirement. Directly relevant to foreign policy ethics.'},
+  {id:'phil2',code:'PHIL 2000+',title:'Philosophy Elective',category:'university',status:'Must take at GU',statusClass:'needed',bestProf:'Check schedule',notes:'Any 2000-level philosophy course. Consider philosophy of economics or political philosophy.'},
+  {id:'writ1',code:'WRIT 1150',title:'Writing and Culture Seminar',category:'university',status:'Check if waived',statusClass:'info',bestProf:'Check schedule',notes:'First-year writing course. AP English may waive. Confirm with Georgetown.'},
+  {id:'writ2',code:'WRIT (Integrated)',title:'Integrated Writing (in major)',category:'university',status:'Must take at GU',statusClass:'needed',bestProf:'Within ECON dept',notes:'Writing-intensive course within the IECO major.'},
+  {id:'halc',code:'HALC',title:'Humanities: Arts, Literature, Cultures',category:'university',status:'May transfer (HC 221H)',statusClass:'transfer',bestProf:'Check schedule',notes:'UO HC 221H Epic & Leadership may satisfy.'},
+  {id:'psj',code:'PSJ',title:'Pathways to Social Justice',category:'university',status:'Must take at GU',statusClass:'needed',bestProf:'Various',notes:'1-credit seminar + 2 overlay courses. New requirement starting Fall 2024.'},
+  {id:'qr',code:'QR',title:'Quantitative Reasoning',category:'university',status:'Likely satisfied',statusClass:'done',bestProf:'N/A',notes:'Math and economics courses should satisfy this requirement.'}
+];
+
+const professors = [
+  {name:'David Burk',courses:['ECON 2102','ECON 2110'],rating:3.7,wouldTakeAgain:'73%',difficulty:'Moderate',verdict:'rec',highlights:'Won 2026 CAC Faculty Award (most votes from CAS graduates). Entertaining lecturer who genuinely wants students to learn. "One of the best professors in the econ department." Tests can be challenging but fair.'},
+  {name:'Anthony Arend',courses:['GOVT 060'],rating:4.5,wouldTakeAgain:'90%+',difficulty:'Moderate',verdict:'rec',highlights:'Chair of Government Department. "Quite possibly the best professor in the school." Makes complex international law accessible. Intellectually stimulating. Must-take for anyone interested in IR.'},
+  {name:'Anna Mayda',courses:['ECON 2543'],rating:4.1,wouldTakeAgain:'86%',difficulty:'Moderate',verdict:'rec',highlights:'Animated, engaging style. Requires weekly email summaries of readings. Research in political economy of trade and immigration (published in QJE, AER). Great for trade policy.'},
+  {name:'Juan Felipe Riano',courses:['ECON 4480','ECON 4483'],rating:4.7,wouldTakeAgain:'100%',difficulty:'Moderate',verdict:'rec',highlights:'Assistant Professor since 2023. Research in political economy, development economics, economic history. Straightforward grading. Teaches newest political economy trends and sharpens econometrics skills.'},
+  {name:'Billy Jack',courses:['ECON 2101','ECON 4483'],rating:4.3,wouldTakeAgain:'60%',difficulty:'Moderate-Hard',verdict:'rec',highlights:'Director of Undergraduate Studies. Co-director of gui2de (Georgetown development evaluation). Former IMF economist. Passionate with great anecdotes. Sometimes unclear on math expectations.'},
+  {name:'Wes Austin & Adam Theising',courses:['ECON 4075'],rating:4.85,wouldTakeAgain:'95%+',difficulty:'Moderate',verdict:'rec',highlights:'Both are EPA economists / adjunct professors. "One of the best econ courses at Georgetown." Passionate about environmental policy. Fair tests, manageable homework.'},
+  {name:'Alexandre Poirier',courses:['ECON 2120','ECON 4022'],rating:4.0,wouldTakeAgain:'N/A',difficulty:'Moderate-Hard',verdict:'rec',highlights:'Provost\'s Distinguished Associate Professor. Published in Econometrica. Specialist in causal inference and econometrics. Top-tier researcher teaching his specialty.'},
+  {name:'Rodney Ludema',courses:['ECON 2543'],rating:3.8,wouldTakeAgain:'N/A',difficulty:'Moderate',verdict:'rec',highlights:'Former Chief Economist at US State Department. Extensive real-world trade policy experience. Clear lecturer, fair grader. Directs Landegger Program in International Business Diplomacy. Ideal for FSO aspirants.'},
+  {name:'Robert Cumby',courses:['ECON 2544'],rating:3.5,wouldTakeAgain:'N/A',difficulty:'Moderate-Hard',verdict:'rec',highlights:'Research in international finance, macroeconomics, applied econometrics. Former senior economist at IMF, Council of Economic Advisers, Deputy Asst. Secretary at Treasury.'},
+  {name:'Alan Bester',courses:['ECON 2101'],rating:3.6,wouldTakeAgain:'82%',difficulty:'3.7/5',verdict:'rec',highlights:'Passionate, intelligent, caring. Tests reflect lectures. Very high volume of reviews (207) suggests he teaches frequently and consistently. Some criticism of math instruction.'},
+  {name:'Ian Gale',courses:['ECON 2101'],rating:3.6,wouldTakeAgain:'78%',difficulty:'3.2/5',verdict:'rec',highlights:'Knowledgeable, approachable, connects content to real world. Fast-paced but provides resources. 6 problem sets, 2 midterms, 1 final.'},
+  {name:'Arik Levinson',courses:['ECON 2101','ECON 4075'],rating:3.6,wouldTakeAgain:'62%',difficulty:'3.2/5',verdict:'rec',highlights:'Won 2022 Dept. Excellence in Teaching Award. Problem sets graded on completion and done in groups. Provides practice exams.'},
+  {name:'Mitch Kaneda',courses:['ECON 2543'],rating:4.0,wouldTakeAgain:'N/A',difficulty:'Moderate-Hard',verdict:'rec',highlights:'"One of the best lecturers at Georgetown." Pure whiteboard lectures — no slideshows. Can be challenging for slow note-takers but deeply engaging.'},
+  {name:'Charles King',courses:['GOVT 040'],rating:4.2,wouldTakeAgain:'75%',difficulty:'Hard',verdict:'rec',highlights:'Brilliant, fascinating discussions. Tough grader — hard to get an A. Will make you a better thinker and writer. Demanding but transformative.'},
+  {name:'Mark Huggett',courses:['ECON 2102'],rating:2.9,wouldTakeAgain:'32%',difficulty:'Hard',verdict:'avoid',highlights:'Uses own textbook. Lectures described as monotonous. Only 32% would take again. AVOID if David Burk section is available.'},
+  {name:'Juhee Bae',courses:['ECON 2110','ECON 2120'],rating:2.2,wouldTakeAgain:'Low',difficulty:'3.8/5',verdict:'avoid',highlights:'Unclear lectures. However, exams drawn from textbook/mock exams/recitation so self-study can compensate. AVOID if other sections available.'},
+  {name:'Roger Lagunoff',courses:['ECON 4059'],rating:3.0,wouldTakeAgain:'Mixed',difficulty:'Hard',verdict:'avoid',highlights:'Co-Director of Georgetown Center for Economic Research. Expert in game theory. Slides are picture-heavy with limited content. Rely on TAs. May be the only option for Game Theory.'}
+];
+
+const clubs = [
+  {name:'ISD Certificate in Diplomatic Studies',priority:'Essential',category:'Diplomacy',desc:'6-course certificate including statecraft, economic diplomacy, negotiation, and diplomatic history + diplomacy internship. The single most directly FSO-aligned credential at Georgetown.',why:'Directly prepares for Foreign Service. Required internship aligns with State Dept goals. Mentorship from ISD Associates (practicing diplomats).'},
+  {name:'U.S.-China Student Dialogue / Initiative for U.S.-China Dialogue',priority:'Essential',category:'China/Asia',desc:'University-wide program with cohorts of 12-15 students. Zoom sessions on U.S.-China issues culminating in a Georgetown-funded week-long study tour in China.',why:'Leverages Chinese language skills. Funded travel to China. Policy engagement with Chinese counterparts. Perfect for FSO with China focus.'},
+  {name:'Pelosi Scholars Initiative',priority:'Essential',category:'Career',desc:'Competitive program for SFS juniors providing professional development, networking, mentorship, and a funded public service internship (up to $6,500 stipend).',why:'Funded internship pathway to State Department. Professional development + mentorship. Apply as soon as eligible.'},
+  {name:'Georgetown International Relations Club (IRC)',priority:'High',category:'Diplomacy',desc:'Main forum for undergrad foreign affairs engagement. Home to Georgetown\'s Model UN team (one of the most decorated in the world). Speakers, events, and trips.',why:'Diplomatic simulation, negotiation practice, and speaking skills. Networking with practitioners. Resume builder for FSO applications.'},
+  {name:'Carroll Round',priority:'High',category:'Economics',desc:'Georgetown\'s annual international economics conference for top undergraduates worldwide to present original research. Format replicates professional academic conferences.',why:'Premier opportunity to present original international economics research. Signals serious analytical capability. Consider submitting UO research.'},
+  {name:'Georgetown Journal of International Affairs (GJIA)',priority:'High',category:'Publications',desc:'Flagship peer-reviewed, student-run academic publication of SFS. Publishes policy-oriented analyses by scholars and practitioners.',why:'Top-tier credential for FSO aspirants. Develops analytical writing skills. Engagement with international affairs scholarship.'},
+  {name:'Georgetown Journal of Asian Affairs (GJAA)',priority:'High',category:'China/Asia',desc:'Annual publication of the Asian Studies Program. Publishes policy viewpoints and peer-reviewed research on contemporary Asia.',why:'Publishing on Asian policy topics directly relevant to China-focused FSO career. Combines economics + Asia expertise.'},
+  {name:'Omicron Delta Epsilon (ODE)',priority:'Moderate',category:'Honor Society',desc:'International Economics Honor Society. Requires 6+ econ courses, 3.0+ GPA. Sponsors speakers including Nobel laureates.',why:'Academic distinction in economics. Networking with economics practitioners. With her GPA she easily qualifies.'},
+  {name:'Phi Beta Kappa',priority:'Moderate',category:'Honor Society',desc:'Top 10% of graduating class from SFS. Election based on scholarly achievement and commitment to liberal arts.',why:'Premier academic distinction. Signals intellectual breadth valued by State Department and graduate schools.'},
+  {name:'GU Politics Fellows Program',priority:'Moderate',category:'Policy',desc:'Weekly 90-minute off-the-record discussions with political leaders, featuring special guests and experts.',why:'Direct access to political practitioners. Understanding of policy-politics intersection. Networking with government leaders.'},
+  {name:'Delta Phi Epsilon',priority:'Moderate',category:'Diplomacy',desc:'Professional Foreign Service Sorority with deep Georgetown roots since 1948. DPE Foundation promotes educational initiatives in foreign service and international affairs.',why:'Professional network specifically for foreign service careers. Alumni connections in the diplomatic community.'},
+  {name:'SFS Academic Council (SFSAC)',priority:'Moderate',category:'Leadership',desc:'Student government for SFS. Organizes Diplomatic Ball, Trick or Treat on Embassy Row, Student-Faculty Banquet.',why:'Leadership within SFS. Direct engagement with the diplomatic community through Embassy Row events. Advocacy experience.'}
+];
+
+const fsoTimeline = [
+  {period:'Summer 2026 (Pre-Arrival)',items:['Request preliminary credit evaluation from SFS Dean\'s Office','Send AP score reports to Georgetown','Create USAJobs.gov account; set up alerts for State Dept internships','Sign up for Pickering and Rangel fellowship email notifications','Register for October 2026 FSOT as a practice run','Begin compiling SF-86 data (addresses, contacts, travel for past 10 years)']},
+  {period:'Fall 2026 — Junior Year',items:['★ Apply for State Dept Student Internship Program (SIP) for Summer 2027 — deadline early October','★ Apply for Pickering & Rangel Fellowships if cycles resume (typically Sept-Oct deadline)','★ Apply for VSFS eInternship (if July window was missed, prepare for next cycle)','Take FSOT (October 2026 window) as practice run','Enroll in ISD Certificate in Diplomatic Studies','Join IRC, apply for Pelosi Scholars Initiative','Take ECON 2543 International Trade + GOVT 060 International Relations']},
+  {period:'Spring 2027 — Junior Year',items:['Register for & take FSOT (February 2027 window)','Apply for summer internships at think tanks (CSIS, Brookings, Peterson Institute) as backup','Apply for Pathways internships on USAJobs as they appear','Seek research assistantship with Georgetown economics faculty','Attend State Department recruitment events at Georgetown','Take ECON 2544 International Finance + GOVT 040 Comparative Politics']},
+  {period:'Summer 2027',items:['★ State Department SIP internship (Priority 1)','★ Think tank / Treasury / USTR internship in DC (Priority 2)','Apply for VSFS eInternship for 2027-28 academic year (July window)','If FSOT was passed: prepare for QEP review','Consider intensive Chinese language program if not interning']},
+  {period:'Fall 2027 — Senior Year',items:['★ Apply again for Pickering & Rangel Fellowships (prime window as graduating senior)','★ Take FSOT again (October 2027) if not yet passed','If QEP passed: prepare intensively for Foreign Service Oral Assessment (FSOA)','Continue ISD Certificate coursework','Take ECON 4480 Political Economy or other applied elective','Begin researching master\'s programs (Georgetown MSFS, SAIS, Fletcher)','Submit research to Carroll Round conference (applications typically due in fall)']},
+  {period:'Spring 2028 — Senior Year',items:['Take FSOT again if needed (February 2028 window)','If FSOA passed: begin security clearance paperwork (SF-86)','If Pickering/Rangel awarded: select master\'s program','Use Hoya Gateway to connect with FSOs in Economics cone for informational interviews','Complete IECO honors thesis if pursuing (IECO 4980)','Graduate — May 2028']},
+  {period:'Post-Graduation 2028-2030',items:['If on register: work in economics/policy while awaiting A-100 appointment (18 months on register)','If in Pickering/Rangel: begin 2-year master\'s + two summer internships → FSO appointment upon completion (~2030)','If still in pipeline: continue taking FSOT quarterly. Average successful candidate takes it 2-3 times','Maintain and deepen Chinese proficiency — take State Dept telephone language test after FSOA']}
+];
+
+// ===== SEMESTER PLANS =====
+const semesterPlansWithAP = [
+  {name:'Fall 2026 — Junior Year (Semester 1)',courses:[
+    {title:'ECON 2543 — International Trade',detail:'IECO co-requisite. Take with Mayda or Ludema. ★ Top Priority',type:'core'},
+    {title:'GOVT 060 — International Relations',detail:'SFS Core. Take with Anthony Arend if possible. ★',type:'core'},
+    {title:'HIST (Survey) — History Survey Course',detail:'SFS Core. Choose East Asian history if available.',type:'core'},
+    {title:'THEO 1000/1100 — Problem of God / Intro Biblical Lit',detail:'University Core (if REL 302 doesn\'t transfer as THEO).',type:'core'},
+    {title:'INAF 008 — Map of the Modern World',detail:'SFS Core. 1 credit. Low load addition.',type:'core'}
+  ]},
+  {name:'Spring 2027 — Junior Year (Semester 2)',courses:[
+    {title:'ECON 2544 — International Finance',detail:'IECO co-requisite. Take with Robert Cumby. ★ Top Priority',type:'core'},
+    {title:'GOVT 040 — Comparative Political Systems',detail:'SFS Core. Take with Charles King (rigorous) or Langenbacher.',type:'core'},
+    {title:'HIST (Early) — Regional History (Early)',detail:'SFS Core. Must carry "early" attribute.',type:'core'},
+    {title:'PHIL 1900 — Social & Political Philosophy',detail:'University Core. Directly relevant to foreign policy ethics.',type:'core'},
+    {title:'Chinese Language (if continuing)',detail:'Maintain proficiency. Consider advanced seminar.',type:'elective'}
+  ]},
+  {name:'Fall 2027 — Senior Year (Semester 3)',courses:[
+    {title:'ECON 4480 — Political Economy & Public Policy ★',detail:'Applied elective. Take with Riano (4.7★, 100% would take again). Ideal for FSO.',type:'elective'},
+    {title:'HIST (Late) — Regional History (Late)',detail:'SFS Core. Must carry "late" attribute. Modern Chinese history ideal.',type:'core'},
+    {title:'THEO 2000+ — Intermediate Theology',detail:'University Core. Choose ethics or global issues focus.',type:'core'},
+    {title:'PHIL 2000+ — Philosophy Elective',detail:'University Core. Political philosophy or philosophy of economics.',type:'core'},
+    {title:'IECO 4970 — Senior Thesis I (if pursuing honors)',detail:'Optional. Requires 3.67+ major GPA. Work with faculty advisor.',type:'elective'}
+  ]},
+  {name:'Spring 2028 — Senior Year (Semester 4)',courses:[
+    {title:'ECON 4483 — Development Economics ★',detail:'Applied elective. Take with Jack or Riano. Critical for FSO Economics cone.',type:'elective'},
+    {title:'ECON 4075 — Environmental Economics',detail:'Applied elective OR free elective. Austin/Theising section (4.7-5.0★).',type:'elective'},
+    {title:'PSJ Overlay / Elective',detail:'Pathways to Social Justice overlay or free elective.',type:'core'},
+    {title:'WRIT (Integrated) — Writing in the Major',detail:'University Core. Writing-intensive ECON course.',type:'core'},
+    {title:'IECO 4980 — Senior Thesis II (if pursuing honors)',detail:'Optional. Complete and defend thesis.',type:'elective'}
+  ]}
+];
+
+const semesterPlansNoAP = [
+  {name:'Fall 2026 — Junior Year (Semester 1)',courses:[
+    {title:'ECON 2543 — International Trade ★',detail:'IECO co-requisite. Take with Mayda or Ludema. Top Priority.',type:'core'},
+    {title:'GOVT 060 — International Relations',detail:'SFS Core. Take with Anthony Arend. ★',type:'core'},
+    {title:'HIST (Survey) — History Survey Course',detail:'SFS Core. Choose East Asian history if available.',type:'core'},
+    {title:'WRIT 1150 — Writing and Culture Seminar',detail:'University Core (if not waived).',type:'core'},
+    {title:'INAF 008 — Map of the Modern World',detail:'SFS Core. 1 credit.',type:'core'}
+  ]},
+  {name:'Spring 2027 — Junior Year (Semester 2)',courses:[
+    {title:'ECON 2544 — International Finance ★',detail:'IECO co-requisite. Take with Robert Cumby.',type:'core'},
+    {title:'GOVT 040 — Comparative Political Systems',detail:'SFS Core. King or Langenbacher.',type:'core'},
+    {title:'HIST (Early) — Regional History (Early)',detail:'SFS Core. Must carry "early" attribute.',type:'core'},
+    {title:'PHIL 1900 — Social & Political Philosophy',detail:'University Core.',type:'core'},
+    {title:'THEO 1000/1100 — Problem of God / Intro Biblical Lit',detail:'University Core.',type:'core'}
+  ]},
+  {name:'Fall 2027 — Senior Year (Semester 3)',courses:[
+    {title:'ECON 4480 — Political Economy & Public Policy ★',detail:'Applied elective. Riano (4.7★). Ideal for FSO Economics cone.',type:'elective'},
+    {title:'HIST (Late) — Regional History (Late)',detail:'SFS Core. Modern Chinese history recommended.',type:'core'},
+    {title:'THEO 2000+ — Intermediate Theology',detail:'University Core.',type:'core'},
+    {title:'PHIL 2000+ — Philosophy Elective',detail:'University Core.',type:'core'},
+    {title:'PSJ Seminar — Pathways to Social Justice (1 cr)',detail:'University Core.',type:'core'}
+  ]},
+  {name:'Spring 2028 — Senior Year (Semester 4)',courses:[
+    {title:'ECON 4483 — Development Economics ★',detail:'Applied elective. Jack or Riano.',type:'elective'},
+    {title:'PSJ Overlay Course #1',detail:'University Core. Pathways to Social Justice overlay.',type:'core'},
+    {title:'PSJ Overlay Course #2',detail:'University Core. Second PSJ overlay.',type:'core'},
+    {title:'WRIT (Integrated) — Writing in the Major',detail:'University Core.',type:'core'},
+    {title:'HALC — Humanities Elective',detail:'University Core (if HC 221H doesn\'t transfer).',type:'core'}
+  ]}
+];
+
+// ===== RENDERING FUNCTIONS =====
+function renderCourseTable(filter='all', search='') {
+  const tbody = document.querySelector('#courseTable tbody');
+  const s = search.toLowerCase();
+  const filtered = courses.filter(c => {
+    if (filter !== 'all' && filter !== c.category && !(filter === 'recommended' && c.recommended)) return false;
+    if (s && !c.code.toLowerCase().includes(s) && !c.title.toLowerCase().includes(s) && !c.notes.toLowerCase().includes(s)) return false;
+    return true;
+  });
+  tbody.innerHTML = filtered.map(c => `<tr>
+    <td><strong>${c.code}</strong></td>
+    <td>${c.title}</td>
+    <td>${c.category.replace('-',' ').replace(/\b\w/g,l=>l.toUpperCase())}</td>
+    <td><span class="badge badge-${c.statusClass}">${c.status}</span></td>
+    <td>${c.bestProf}</td>
+    <td style="font-size:.82rem">${c.notes}</td>
+  </tr>`).join('');
+}
+
+function renderProfessors(search='') {
+  const grid = document.getElementById('profGrid');
+  const s = search.toLowerCase();
+  const filtered = professors.filter(p => {
+    if (s && !p.name.toLowerCase().includes(s) && !p.courses.join(' ').toLowerCase().includes(s)) return false;
+    return true;
+  });
+  grid.innerHTML = filtered.map(p => {
+    const stars = '★'.repeat(Math.round(p.rating)) + '☆'.repeat(5-Math.round(p.rating));
+    const verdictClass = p.verdict === 'rec' ? 'badge-rec' : 'badge-avoid';
+    const verdictText = p.verdict === 'rec' ? 'Recommended' : 'Caution';
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">${p.name}</h3>
+        <span class="badge ${verdictClass}">${verdictText}</span>
+      </div>
+      <div style="margin:6px 0;font-size:.85rem;color:var(--gu-gray)">${p.courses.join(' · ')}</div>
+      <div class="rating" style="margin:6px 0">
+        <span class="stars">${stars}</span>
+        <span class="score">${p.rating}/5</span>
+        ${p.wouldTakeAgain ? `<span style="font-size:.8rem;color:var(--gu-gray);margin-left:8px">${p.wouldTakeAgain} would take again</span>` : ''}
+      </div>
+      <p style="font-size:.88rem;margin-top:8px">${p.highlights}</p>
+    </div>`;
+  }).join('');
+}
+
+function renderClubs() {
+  const grid = document.getElementById('clubGrid');
+  grid.innerHTML = clubs.map(c => {
+    const prioClass = c.priority === 'Essential' ? 'badge-needed' : c.priority === 'High' ? 'badge-rec' : 'badge-info';
+    return `<div class="card club-card">
+      <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">${c.name}</h3>
+        <span class="badge ${prioClass}">${c.priority} Priority</span>
+      </div>
+      <div style="font-size:.8rem;color:var(--gu-gray);margin:4px 0">${c.category}</div>
+      <p style="font-size:.88rem;margin:8px 0">${c.desc}</p>
+      <h4 style="font-size:.85rem;color:var(--gu-accent);margin-top:8px">Why it matters for FSO:</h4>
+      <p style="font-size:.85rem">${c.why}</p>
+    </div>`;
+  }).join('');
+}
+
+function renderTimeline() {
+  const container = document.getElementById('fsoTimeline');
+  container.innerHTML = fsoTimeline.map(t => `<div class="timeline-item">
+    <h4>${t.period}</h4>
+    <ul style="margin:6px 0 0 16px;font-size:.88rem">${t.items.map(i => `<li style="margin:4px 0">${i}</li>`).join('')}</ul>
+  </div>`).join('');
+}
+
+function renderSemesterPlans(withAP) {
+  const container = document.getElementById('semesterPlans');
+  const plans = withAP ? semesterPlansWithAP : semesterPlansNoAP;
+  container.innerHTML = plans.map(sem => `<div class="semester-plan">
+    <div class="sem-header">${sem.name}</div>
+    <div class="sem-body">
+      ${sem.courses.map(c => `<div class="course-slot ${c.type}">
+        <div><div class="slot-title">${c.title}</div><div class="slot-detail">${c.detail}</div></div>
+      </div>`).join('')}
+      <div style="text-align:right;font-size:.8rem;color:var(--gu-gray);margin-top:8px">${sem.courses.length} courses · ~${sem.courses.length * 3} credits</div>
+    </div>
+  </div>`).join('');
+}
+
+// ===== EVENT HANDLERS =====
+// Tab navigation
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// AP Toggle sync
+const mainToggle = document.getElementById('apToggle');
+function syncAPToggles(checked) {
+  document.querySelectorAll('.apToggleSync').forEach(t => t.checked = checked);
+  document.querySelectorAll('.apToggleLabelSync').forEach(l => l.textContent = checked ? 'AP Credits Included' : 'AP Credits Excluded');
+  document.getElementById('apToggleLabel').textContent = checked ? 'AP Credits Included (79 hrs)' : 'AP Credits Excluded';
+  
+  // Update stats
+  document.getElementById('statCreditsEarned').textContent = checked ? '175' : '96';
+  document.querySelector('#statCreditsEarned').closest('.stat-box').querySelector('.label').textContent = checked ? 'Credits Earned (UO + AP)' : 'Credits Earned (UO only)';
+  
+  // Show/hide AP notes
+  document.querySelectorAll('.ap-note').forEach(n => {
+    n.classList.toggle('hidden', !checked);
+  });
+  
+  // Re-render semester plans
+  renderSemesterPlans(checked);
+}
+
+mainToggle.addEventListener('change', () => syncAPToggles(mainToggle.checked));
+document.addEventListener('change', e => {
+  if (e.target.classList.contains('apToggleSync')) {
+    mainToggle.checked = e.target.checked;
+    syncAPToggles(e.target.checked);
+  }
+});
+
+// Course search and filters
+document.getElementById('courseSearch').addEventListener('input', e => {
+  const activeFilter = document.querySelector('#courseFilters .filter-btn.active').dataset.filter;
+  renderCourseTable(activeFilter, e.target.value);
+});
+document.querySelectorAll('#courseFilters .filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#courseFilters .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCourseTable(btn.dataset.filter, document.getElementById('courseSearch').value);
+  });
+});
+
+// Professor search
+document.getElementById('profSearch').addEventListener('input', e => renderProfessors(e.target.value));
+
+// ===== INITIAL RENDER =====
+renderCourseTable();
+renderProfessors();
+renderClubs();
+renderTimeline();
+renderSemesterPlans(true);
+</script>
+</body>
+</html>
